@@ -1,0 +1,31 @@
+doctype html
+html(lang="fr")
+  head
+    html(lang="fr")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+    title= "Login"
+  body
+    div.container
+      h1.text-center.text-success.mt-3="Bienvenue sur Reddit'eirb !"
+      div.row.mt-5
+        div.col-6.text-center
+          h3.mb-3="Se connecter"
+          form(action="/login",autocomplete="off",method="post")
+            input.col-3(type="text", placeholder="Pseudo",name="pseudo_input")
+            div.row
+            input.col-3.mb-3(type="password", placeholder="Mot de passe",name="password_input")
+            if (pseudo_error == 1)
+              h5.text-danger="Pseudo inconnu"
+            if (password_error == 1)
+              h5.text-danger="Mot de passe erroné"
+            div.row
+            button(type="submit")="Valider"
+        div.col-6.text-center
+          h3.mb-3="S'inscrire"
+          form(action="/signup",autocomplete="off",method="post")
+            input.col-3(type="text", placeholder="Pseudo",name="pseudo_input")
+            div.row
+            input.col-3(type="password", placeholder="Mot de passe",name="password_input")
+            div.row
+            input.col-5(type="text", placeholder="email",name="email_input")
+          button.mt-3(type="submit")="Valider"
