@@ -39,31 +39,33 @@ app.get("/", async (req, res)=>{
     WHERE u_pseudo = ?
   `,[pseudo_input]);
 
-  if (pseudo_input == null){
-    const data = {
-      pseudo_error: 0,
-      password_error: 0
-    }
-    res.render("login", data)
+  let data = {
+    pseudo_error: 0,
+    password_error: 0,
+    mail_error: 0,
+    signup: 0
   }
-  else if ( (user != undefined) && (user.u_password === password_input) ){
+
+  let succes_login = 0
+
+  if (user != undefined) { // le pseudo renseigné est dans la BDD
+    if (user.u_password === password_input) {
+    succes_login = 1
     req.session.u_id = user.u_id
-    res.redirect("home")
-  }
-  else if ( (user != undefined) && (user.u_password !== password_input) ){
-    const data = {
-      pseudo_error: 0,
-      password_error: 1
     }
-    res.render("login", data)
+    else  // Le mot de passe ne correspond pas
+      data.password_error = 1
   }
   else{
-    const data = {
-      pseudo_error: 1,
-      password_error: 0
-    }
-    res.render("login", data)
+    if (pseudo_input != undefined) // La session a en mémoire une tentative
+      data.pseudo_error = 1
   }
+
+
+  if (succes_login === 1)
+    res.redirect("home")
+  else
+    res.render("login", data)
 
   db.close()
 });
