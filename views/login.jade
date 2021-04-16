@@ -11,9 +11,9 @@ html(lang="fr")
         div.col-6.text-center
           h3.mb-3="Se connecter"
           form(action="/login",autocomplete="off",method="post")
-            input.col-3(type="text", placeholder="Pseudo",name="pseudo_input")
+            input.col-3(type="text", required="required", placeholder="Pseudo",name="pseudo_input")
             div.row
-            input.col-3.mb-3(type="password", placeholder="Mot de passe",name="password_input")
+            input.col-3.mb-3(type="password", required="required", placeholder="Mot de passe",name="password_input")
             if (pseudo_error == 1)
               h5.text-danger="Pseudo inconnu"
             if (password_error == 1)
@@ -22,10 +22,13 @@ html(lang="fr")
             button(type="submit")="Valider"
         div.col-6.text-center
           h3.mb-3="S'inscrire"
-          form(action="/signup",autocomplete="off",method="post")
-            input.col-3(type="text", placeholder="Pseudo",name="pseudo_input")
+          form(action="/signup",autocomplete="off", method="post")
+            input.col-3(type="text", minlength="4", maxlength="255", required="required", placeholder="Pseudo",name="pseudo_input")
             div.row
-            input.col-3(type="password", placeholder="Mot de passe",name="password_input")
+            input.col-3(type="password", minlength="6", maxlength="255", required="required", placeholder="Mot de passe",name="password_input")
             div.row
-            input.col-5(type="text", placeholder="email",name="email_input")
-          button.mt-3(type="submit")="Valider"
+            input.col-5(type="email", maxlength="255", required="required", placeholder="email",name="email_input")
+            div.row
+            if (pseudo_error == 2)
+              h5.text-danger="Pseudo déjà utilisé"
+            button.mt-3(type="submit")="Valider"
