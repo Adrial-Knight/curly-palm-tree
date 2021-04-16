@@ -81,4 +81,4 @@ Un bonus sera alloué aux groupes qui :
 
 Le schéma suivant est pour l'instant envisagé:
 
-![Strucuture des tables SQL](readme_img/Structure_tables_SQL.png)
+![Strucuture des tables SQL](readme_img/Structure_table_sql.png)
