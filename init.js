@@ -1,6 +1,6 @@
 const {openDb} = require("./db")
 
-const tables = ["USERS", "ARTICLES", "COMMENTS", "FAVORITES"]
+const tables = ["USERS", "ARTICLES", "COMMENTS", "FAVORITES", "VOTES"]
 
 async function createTables(db){
   await db.run(`
@@ -44,6 +44,15 @@ async function createTables(db){
     );
   `)
 
+  await db.run(`
+    CREATE TABLE IF NOT EXISTS VOTES(
+        v_user INTEGER,
+        v_reference INTEGER,
+        v_kind varchar(7),
+        v_vote INTEGER
+    );
+  `)
+
   const u_pseudos = ["bob", "max"]
   const u_mails = ["bob@gmail.com", "max@gmail.com"]
   const u_passwords = ["bob", "max"]
@@ -62,7 +71,10 @@ async function createTables(db){
   await db.run(sql_insert, ["max", 0, date, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
 
   sql_insert = `INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, ?)`
-  await db.run(sql_insert, [1, "bob", "Excellent site pour faire des recherches!","1"])
+  await db.run(sql_insert, [1, "bob", "Excellent site pour faire des recherches!",1])
+
+  sql_insert = `INSERT INTO VOTES (v_user, v_reference, v_kind, v_vote) VALUES (?, ?, ?, ?)`
+  await db.run(sql_insert, ["max", 1, "comment", 1])
 
 }
 
