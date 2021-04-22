@@ -44,6 +44,9 @@ app.get("/", async (req, res)=>{
   let data = {
     pseudo_error: 0,
     password_error: 0,
+    login_request: 1,
+    title: "Se connecter",
+    action: "/login"
   }
 
   let succes_login = 0
@@ -55,7 +58,7 @@ app.get("/", async (req, res)=>{
       req.session.u_id = user.u_id
       }
       else  // Le mot de passe ne correspond pas
-        data.password_error = 1
+        data.password_error = "Mot de passe erroné"
     }
     else{
       if (pseudo_input != undefined) // La session a en mémoire une tentative
@@ -64,16 +67,25 @@ app.get("/", async (req, res)=>{
   }
 
   else if (signup == 1){ // tentative d'inscription
+    data.login_request = 0
+    data.title = "S'inscrire"
+    data.action = "/signup"
     if (user != undefined) // pseudo déjà utilisé
       data.pseudo_error = 2
-    else{
+    else if (email_input != null) { // on enregistre
       var date = new Date()
       var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"}
       date = date.toLocaleDateString("fr-FR", options)
 
       const sql_insert = `INSERT INTO USERS (u_pseudo, u_mail, u_password, u_connexion) VALUES (?, ?, ?, ?)`
       db.run(sql_insert,[pseudo_input, email_input, password_input, date])
+
+      // On redirige vers la page de connexion
+      data.login_request = 1
+      data.title = "Bienvenue " + pseudo_input + ", vous pouvez vous connecter !"
+      data.action = "/login"
     }
+    // else on redirige vers la page d'enregistrement depuis la page de login
   }
   // else: première fois que l'on charge la page dans cette session
 
@@ -107,6 +119,11 @@ app.post("/login", (req, res) => {
   res.redirect("/")
 })
 
+// Redirige vers la page d'enregistrement
+app.post("/signin", (req, res) => {
+  req.session.signup = 1
+  res.redirect("/")
+})
 
 // Enregistre les données entrées pour une potentielle inscription
 app.post("/signup", async (req, res) => {

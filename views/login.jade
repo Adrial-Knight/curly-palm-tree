@@ -6,29 +6,38 @@ html(lang="fr")
     title= "Login"
   body
     div.container
-      h1.text-center.text-success.mt-3="Bienvenue sur Reddit'eirb !"
-      div.row.mt-5
-        div.col-6.text-center
-          h3.mb-3="Se connecter"
-          form(action="/login",autocomplete="off",method="post")
-            input.col-3(type="text", required="required", placeholder="Pseudo",name="pseudo_input")
+      h1.text-center.mt-3="Bienvenue sur Reddit'eirb !"
+        row.justify-content-center
+          h2.mb-3.mt-4.text-dark=title
+          form(action=action,autocomplete="off",method="post")
             div.row
-            input.col-3.mb-3(type="password", required="required", placeholder="Mot de passe",name="password_input")
+              div.col-4
+              input.col-4.mb-3.input-group-text(type="text", minlength="4", maxlength="255", required="required", placeholder="Pseudo",name="pseudo_input")
+            div.row
+              div.col-4
+              input.col-4.mb-3.input-group-text(type="password", minlength="6", maxlength="255", required="required", placeholder="Mot de passe",name="password_input")
+            div.row
+              if (action == "/signup")
+                div.col-4
+                input.col-4.mb-3.input-group-text(type="email", maxlength="255", required="required", placeholder="email",name="email_input")
+            div.row
             if (pseudo_error == 1)
               h5.text-danger="Pseudo inconnu"
-            if (password_error == 1)
-              h5.text-danger="Mot de passe erroné"
-            div.row
-            button(type="submit")="Valider"
-        div.col-6.text-center
-          h3.mb-3="S'inscrire"
-          form(action="/signup",autocomplete="off", method="post")
-            input.col-3(type="text", minlength="4", maxlength="255", required="required", placeholder="Pseudo",name="pseudo_input")
-            div.row
-            input.col-3(type="password", minlength="6", maxlength="255", required="required", placeholder="Mot de passe",name="password_input")
-            div.row
-            input.col-5(type="email", maxlength="255", required="required", placeholder="email",name="email_input")
-            div.row
             if (pseudo_error == 2)
               h5.text-danger="Pseudo déjà utilisé"
-            button.mt-3(type="submit")="Valider"
+            if (password_error != 0)
+              h5.text-danger=password_error
+            div.row
+            button.btn.btn-outline-dark.btn-lg(type="submit")="Valider"
+          div.row.mt-5
+            div.col-4
+            if (action == "/login")
+              h5.col-2.mt-3="Pas de compte ?"
+              div.col-2
+                form(action="/signup",autocomplete="off",method="post")
+                  button.btn.btn-outline-primary.btn-lg(type="submit")="Inscrivez-vous !"
+            else
+              h5.col-2.mt-3="Déjà inscrits ?"
+              div.col-2
+                form(action="/login",autocomplete="off",method="post")
+                  button.btn.btn-outline-primary.btn-lg(type="submit")="Connexion !"
