@@ -1,0 +1,34 @@
+doctype html
+html(lang="fr")
+  head
+    html(lang="fr")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+    title="Reddit'eirb"
+  body
+    header
+      div.container
+        div.row
+          div.col.4.mt-3
+            h4.text-secondary.font-weight-bold= "Reddit'eirb"
+          div.col.4.mt-2
+            form(action="/search",autocomplete="off",method="post")
+              div.row
+                div.col
+                  input.form-control(type="text", placeholder="Search",name="search_input")
+                div.col
+                  button.btn.btn-outline-dark(type="submit")="Chercher"
+          div.col.4.mt-3
+            div.row.justify-content-end
+              div.col-6
+                h3.mr=user.u_pseudo
+              div.col-3
+                form(action="/deconnexion",method="post")
+                  button(type="deco")="Déconnexion"
+          hr.text-dark.font-weight-bold
+  div.container
+    div.row
+      div.col-9
+        block left
+      div.col-3
+        block right
+    

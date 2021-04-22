@@ -18,6 +18,7 @@ async function createTables(db){
         a_id INTEGER PRIMARY KEY AUTOINCREMENT,
         a_user INTEGER,
         a_score INTEGER,
+        a_reaction INTEGER,
         a_date date,
         a_link varchar(255),
         a_title varchar(255),
@@ -67,14 +68,14 @@ async function createTables(db){
     await db.run(sql_insert, [u_pseudos[i], u_mails[i], u_passwords[i], u_connexions[i]])
   }
 
-  sql_insert = `INSERT INTO ARTICLES (a_user, a_score, a_date, a_link, a_title, a_sub, a_content) VALUES (?, ?, ?, ?, ?, ?, ?)`
-  await db.run(sql_insert, ["max", 0, date, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
+  sql_insert = `INSERT INTO ARTICLES (a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub, a_content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  await db.run(sql_insert, ["max", 0, 1, date, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
 
   sql_insert = `INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, ?)`
-  await db.run(sql_insert, [1, "bob", "Excellent site pour faire des recherches!",1])
+  await db.run(sql_insert, [1, 1, "Excellent site pour faire des recherches!",1])
 
   sql_insert = `INSERT INTO VOTES (v_user, v_reference, v_kind, v_vote) VALUES (?, ?, ?, ?)`
-  await db.run(sql_insert, ["max", 1, "comment", 1])
+  await db.run(sql_insert, [2, 1, "comment", 1])
 
 }
 

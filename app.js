@@ -106,8 +106,37 @@ app.get("/home", async (req, res) => {
     WHERE u_id = ?
   `,[req.session.u_id]);
 
+  // On charge les dix articles ayant le plus de vote
+  // ainsi que les intéractions passé de l'utilisateur avec ces articles
+  var articles = new Array
+  var votes = new Array
+  let i = -1
+  let article = 1 // definit article pour passer au moins une fois dans le while
+  let vote
+
+  while ( (article != undefined) && (i++ < 10) ) {
+    article = await db.get(`
+      SELECT * FROM ARTICLES
+      ORDER BY a_score DESC
+      LIMIT 10
+      OFFSET ?
+    `, [i])
+
+    if (article != undefined){
+      articles.push(article)
+
+      vote = await db.get(`
+        SELECT v_vote FROM VOTES
+        WHERE (v_user = ? AND v_reference = ? AND v_kind = "article")
+      `, [user.u_id, articles[i].a_id])
+
+      votes.push(vote)
+      }
+
+    }
+
   db.close()
-  res.render("home", user)
+  res.render("home", {user, articles, votes})
 })
 
 
@@ -134,6 +163,50 @@ app.post("/signup", async (req, res) => {
   res.redirect("/")
 })
 
+// Prend en compte un vote
+app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", async (req, res) => {
+  const page = req.params.page
+  const user = req.params.v_user
+  const v_reference = req.params.v_reference
+  const v_kind = req.params.v_kind
+  const v_vote = req.params.v_vote
+  const new_score = req.params.new_score
+
+  const db = await openDb()
+  if (req.params.change === "new"){ // première fois que l'utilisateur vote l'article ou le commentaire
+    await db.run(`
+    INSERT INTO VOTES (v_user, v_reference, v_kind, v_vote) VALUES (?, ?, ?, ?)
+  `,[user, v_reference, v_kind, v_vote])
+  }
+
+  else{  // l'utilisateur change d'avis
+    await db.run(`
+    UPDATE VOTES
+    SET v_vote = ?
+    WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
+  `,[v_vote, user, v_reference, v_kind])
+  }
+
+  if (v_kind === "article"){ // on met à jour la table ARTICLES
+    await db.run(`
+    UPDATE ARTICLES
+    SET a_score = ?
+    WHERE a_id = ?
+  `,[new_score, v_reference])
+  }
+
+  else{ // on met à jour la table COMMENTS
+    await db.run(`
+    UPDATE COMMENTS
+    SET c_score = ?
+    WHERE c_id = ?
+  `,[new_score, v_reference])
+  }
+
+  db.close()
+
+  res.redirect("/"+page)
+})
 
 // Enregistre la date et l'heure, et se deconnecte
 app.post("/deconnexion", async (req, res) => {

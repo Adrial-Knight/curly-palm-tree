@@ -1,22 +1,28 @@
-doctype html
-html(lang="fr")
-  head
-    html(lang="fr")
-    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
-    title= title
-  body
-    header
-      div.container
-        div.row
-          div.col
-            h4.text-secondary.font-weight-bold= "Reddit'eirb"
-          div.col.mt-2
-            input(type="text", placeholder="Search",name="search_input")
-          div.col.mt-2
-            nav.nav.nav-pills.justify-content-end
-              h3=u_pseudo
-              form(action="/deconnexion",method="post")
-                button(type= "deco")="Déconnexion"
-          hr.text-dark.font-weight-bold
-  div.container
-    h3="Dernière connexion le " + u_connexion
+extend layout.jade
+block left
+  - for(var i=0; i < articles.length; i++)
+    if (articles[i] != undefined)
+      div.container.row.mt-5
+        div.col-1.text-center
+          if (votes[i] != undefined)
+            if (votes[i].v_vote == 1)
+              h4.text-success="up"
+              h4.text-success=articles[i].a_score
+              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
+                button.text-secondary="down"
+            if (votes[i].v_vote == -1)
+              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
+                button.mb-2.text-secondary="up"
+              h4.text-danger=articles[i].a_score
+              h4.text-danger="down"
+          else
+            form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
+              button.mb-2="up"
+            h4=articles[i].a_score
+            form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
+              button="down"
+        div.col-9
+          h4=articles[i].a_user + ", le " +articles[i].a_date
+          h3=articles[i].a_title
+          h5=articles[i].a_reaction
+        
