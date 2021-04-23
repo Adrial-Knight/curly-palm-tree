@@ -36,7 +36,16 @@ block left
             form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
               button="down"
         div.col-9
-          h4=articles[i].a_user + ", le " +articles[i].a_date
-          h3=articles[i].a_title
-          h5=articles[i].a_reaction
+          div.row
+            div.col-9
+              h4=articles[i].a_user + ", le " +articles[i].a_date
+              h3=articles[i].a_title
+              h5=articles[i].a_reaction
+            div.col-3
+              if (articles[i].a_user == user.u_pseudo)
+                div.row
+                  form.col-6(action="/home/del/"+articles[i].a_id,method="post")
+                    button="Editer"
+                  form.col-6(action="/home/del/article/"+articles[i].a_id,method="post")
+                    button="Supprimer"
         

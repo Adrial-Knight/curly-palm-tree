@@ -239,6 +239,25 @@ app.post("/:page/new", async (req, res) => {
   res.redirect("/"+req.params.page)
 })
 
+// Suppression d'un article ou d'un commentaire de l'utilisateur
+app.post("/:page/del/:kind/:id", async (req, res) => {
+
+  const db = await openDb()
+  if (req.params.kind === "article"){
+    await db.run(`
+      DELETE FROM ARTICLES
+      WHERE a_id = ?
+    `,[req.params.id]);
+  }
+  else {
+    await db.run(`
+      DELETE FROM COMMENTS
+      WHERE c_id = ?
+    `,[req.params.id]);
+  }
+  res.redirect("/"+req.params.page)
+})
+
 // Enregistre la date et l'heure, et se deconnecte
 app.post("/deconnexion", async (req, res) => {
   const db = await openDb()
