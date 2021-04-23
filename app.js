@@ -174,7 +174,6 @@ app.get("/article/:id", async (req, res) => {
 
   db.close()
   const edit = req.session.edit
-  console.log(edit)
   res.render("article", {article, user, related, edit})
 })
 
@@ -320,10 +319,10 @@ app.post("/:page/edite/:kind/:id/:status", async (req, res) => {
   db.close()
 
   let path
-  if (req.params.page == "home")
-    path = "/home"
   if (req.params.page == "article")
     path = "/article/"+req.params.id
+  if ( (req.params.page == "home") || (req.params.status == "del") )
+    path = "/home"
 
   res.redirect(path)
 })
