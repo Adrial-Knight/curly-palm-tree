@@ -97,7 +97,7 @@ app.get("/", async (req, res)=>{
   db.close()
 });
 
-
+// Affiche l'accueil
 app.get("/home", async (req, res) => {
   const db = await openDb()
 
@@ -141,6 +141,42 @@ app.get("/home", async (req, res) => {
   res.render("home", {user, articles, votes, edit})
 })
 
+// Affiche la page d'un article
+app.get("/article/:id", async (req, res) => {
+  const db = await openDb()
+
+  const article = await db.get(`
+    SELECT * FROM ARTICLES
+    WHERE a_id = ?
+  `,[req.params.id])
+
+  var related = new Array
+  let i = -1
+  let related_article = 1 // definit article pour passer au moins une fois dans le while
+
+  while ( (related_article != undefined) && (i++ < 10) ) {
+    related_article = await db.get(`
+      SELECT a_id, a_title, a_user, a_score FROM ARTICLES
+      WHERE (a_id != ? AND a_sub = ?)
+      ORDER BY a_score DESC
+      LIMIT 10
+      OFFSET ?
+    `, [article.a_id, article.a_sub, i])
+
+    if (related_article != undefined)
+      related.push(related_article)
+  }
+
+  const user = await db.get(`
+    SELECT * FROM USERS
+    WHERE u_id = ?
+  `,[req.session.u_id])
+
+  db.close()
+  const edit = req.session.edit
+  console.log(edit)
+  res.render("article", {article, user, related, edit})
+})
 
 // Enregistre le pseudo et le mot de passe entré
 app.post("/login", (req, res) => {
@@ -282,7 +318,14 @@ app.post("/:page/edite/:kind/:id/:status", async (req, res) => {
   }
 
   db.close()
-  res.redirect("/"+req.params.page)
+
+  let path
+  if (req.params.page == "home")
+    path = "/home"
+  if (req.params.page == "article")
+    path = "/article/"+req.params.id
+
+  res.redirect(path)
 })
 
 // Suppression d'un article ou d'un commentaire de l'utilisateur
@@ -301,7 +344,7 @@ app.post("/:page/del/:kind/:id", async (req, res) => {
       WHERE c_id = ?
     `,[req.params.id]);
   }
-  res.redirect("/"+req.params.page)
+  res.redirect("/home")
 })
 
 // Enregistre la date et l'heure, et se deconnecte

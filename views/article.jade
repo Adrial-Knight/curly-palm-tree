@@ -1,0 +1,41 @@
+extend layout
+block link
+  style
+    include CSS/article.css
+block left
+  h1.text-center=article.a_title
+  div.row
+    if ( (user.u_pseudo == article.a_user) && (edit == null))
+      nav.nav.nav-pills.fs-7.lh-1.col-9
+        a.h4.nav-link.active.rounded-pill(href=article.a_link)=article.a_link
+        h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_user
+        h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_date
+      nav.nav.nav-pills.fs-7.lh-1.col-3
+        form(action="/article/edite/article/"+article.a_id+"/processing",method="post")
+          button.nav-link.bg-secondary.rounded-pill.text-white="Editer"
+        form(action="/article/del/article/"+article.a_id,method="post")
+          button.nav-link.bg-danger.rounded-pill.text-white="Supprimer"
+    if ( (edit != null) && (edit.id == article.a_id) )
+        form.row(action="/article/edite/article/"+article.a_id+"/saved",method="post")
+          nav.nav.nav-pills.fs-7.lh-1.col-9
+            a.h4.nav-link.active.rounded-pill(href=article.a_link)=article.a_link
+            h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_user
+            h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_date
+          nav.nav.nav-pills.fs-7.lh-1.col-3
+            button.nav-link.bg-success.rounded-pill.text-white.mb-2="Valider"
+          input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
+          div.row
+          input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link", value=edit.link)
+          input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub", value=edit.sub)
+          div.row
+          textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
+
+    else
+      p.h3.my-a_content=article.a_content
+  
+block right
+  div.container
+    h2.text-center.mt-5="Aussi dans la sub reddit'eirb "+article.a_sub
+    - for(var i=0; i < related.length; i++)
+      div.row.mt-4
+      a.h4.text-decoration-none.text-dark(href="/article/"+related[i].a_id)=related[i].a_title+" de "+related[i].a_user+" avec un score de "+related[i].a_score

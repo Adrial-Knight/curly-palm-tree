@@ -3,13 +3,14 @@ html(lang="fr")
   head
     html(lang="fr")
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+    block link
     title="Reddit'eirb"
   body
     header
       div.container
         div.row
           div.col.4.mt-3
-            h4.text-secondary.font-weight-bold= "Reddit'eirb"
+            a.text-secondary.font-weight-bold.text-decoration-none.fs-5(href="/")="Reddit'eirb"
           div.col.4.mt-2
             form(action="/search",autocomplete="off",method="post")
               div.row
