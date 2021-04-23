@@ -171,20 +171,27 @@ app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", 
   const v_kind = req.params.v_kind
   const v_vote = req.params.v_vote
   const new_score = req.params.new_score
+  const change = req.params.change
 
   const db = await openDb()
-  if (req.params.change === "new"){ // première fois que l'utilisateur vote l'article ou le commentaire
+  if (change === "new"){ // première fois que l'utilisateur vote l'article ou le commentaire
     await db.run(`
     INSERT INTO VOTES (v_user, v_reference, v_kind, v_vote) VALUES (?, ?, ?, ?)
   `,[user, v_reference, v_kind, v_vote])
   }
 
-  else{  // l'utilisateur change d'avis
+  else if (change === "udapte"){  // l'utilisateur change son vote
     await db.run(`
     UPDATE VOTES
     SET v_vote = ?
     WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
   `,[v_vote, user, v_reference, v_kind])
+}
+  else{ // l'utilisateur supprime son vote
+    await db.run(`
+    DELETE FROM VOTES
+    WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
+    `,[user, v_reference, v_kind])
   }
 
   if (v_kind === "article"){ // on met à jour la table ARTICLES
@@ -195,7 +202,7 @@ app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", 
   `,[new_score, v_reference])
   }
 
-  else{ // on met à jour la table COMMENTS
+  else { // on met à jour la table COMMENTS
     await db.run(`
     UPDATE COMMENTS
     SET c_score = ?
@@ -203,9 +210,33 @@ app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", 
   `,[new_score, v_reference])
   }
 
+
   db.close()
 
   res.redirect("/"+page)
+})
+
+// Nouvel article ou commentaire de l'utilisateur
+app.post("/:page/new", async (req, res) => {
+  const pseudo = req.session.pseudo
+  const title = req.body.title
+  const link = req.body.link
+  const sub = req.body.sub
+  const content = req.body.content
+
+  var date = new Date();
+  var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+  date = date.toLocaleDateString("fr-FR", options)
+
+  const db = await openDb()
+
+  if (sub != undefined){ // l'utilisateur écrit un nouveau post
+    await db.run(`
+    INSERT INTO ARTICLES (a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub, a_content) VALUES (?, 0, 0, ?, ?, ?, ?, ?)
+  `,[pseudo, date, link, title, sub, content])
+  }
+
+  res.redirect("/"+req.params.page)
 })
 
 // Enregistre la date et l'heure, et se deconnecte

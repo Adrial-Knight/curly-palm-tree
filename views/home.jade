@@ -1,20 +1,34 @@
 extend layout.jade
 block left
+  form.row.mt-3(action="/home/new",method="post")
+    article.col-3
+      header.h2="Nouveau post"
+      p.h5="Partagez votre nouvelle découverte " + user.u_pseudo + " !"
+      button="Publier"
+    div.col-9
+      input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="title")
+      div.row
+      input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link")
+      input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub")
+      div.row
+      textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")
   - for(var i=0; i < articles.length; i++)
     if (articles[i] != undefined)
       div.container.row.mt-5
         div.col-1.text-center
           if (votes[i] != undefined)
             if (votes[i].v_vote == 1)
-              h4.text-success="up"
+              form(action="/home/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
+                button.mb-2="cancel"
               h4.text-success=articles[i].a_score
-              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
-                button.text-secondary="down"
+              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 2),method="post")
+                button="down"
             if (votes[i].v_vote == -1)
-              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
-                button.mb-2.text-secondary="up"
+              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 2),method="post")
+                button.mb-2="up"
               h4.text-danger=articles[i].a_score
-              h4.text-danger="down"
+              form(action="/home/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/+1/"+(articles[i].a_score + 1),method="post")
+                button="cancel"
           else
             form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
               button.mb-2="up"
