@@ -136,7 +136,9 @@ app.get("/home", async (req, res) => {
     }
 
   db.close()
-  res.render("home", {user, articles, votes})
+
+  const edit = req.session.edit
+  res.render("home", {user, articles, votes, edit})
 })
 
 
@@ -236,6 +238,50 @@ app.post("/:page/new", async (req, res) => {
   `,[pseudo, date, link, title, sub, content])
   }
 
+  res.redirect("/"+req.params.page)
+})
+
+// Edite un article ou un commentaire de l'utilisateur
+app.post("/:page/edite/:kind/:id/:status", async (req, res) => {
+  const db = await openDb()
+  if (req.params.kind == "article"){
+    if (req.params.status == "processing"){
+      const article = await db.get(`
+        SELECT a_title, a_link, a_content, a_sub FROM ARTICLES
+        WHERE a_id = ?
+      `, [req.params.id])
+
+      req.session.edit = {
+        kind: req.params.kind,
+        id: req.params.id,
+        title: article.a_title,
+        link: article.a_link,
+        content: article.a_content,
+        sub: article.a_sub
+      }
+    }
+    else if (req.params.status == "saved"){ //on enregistre les modifications
+      await db.run(`
+      UPDATE ARTICLES
+      SET a_title = ?, a_link = ?, a_sub = ?, a_content = ?
+      WHERE a_id = ?
+    `,[req.body.new_title, req.body.link, req.body.sub, req.body.content, req.session.edit.id])
+
+      req.session.edit = null
+    }
+    else if (req.params.status == "del"){ // on supprime l'article
+      await db.run(`
+        DELETE FROM ARTICLES
+        WHERE a_id = ?
+      `,[req.session.edit.id])
+
+      req.session.edit = null
+    }
+    else if (req.params.status == "cancel")// on ne prend pas en compte les modifications (bouton "annuler")
+      req.session.edit = null
+  }
+
+  db.close()
   res.redirect("/"+req.params.page)
 })
 

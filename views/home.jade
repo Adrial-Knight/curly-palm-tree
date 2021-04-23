@@ -35,17 +35,37 @@ block left
             h4=articles[i].a_score
             form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
               button="down"
-        div.col-9
+        div.col-11
           div.row
-            div.col-9
-              h4=articles[i].a_user + ", le " +articles[i].a_date
-              h3=articles[i].a_title
-              h5=articles[i].a_reaction
-            div.col-3
-              if (articles[i].a_user == user.u_pseudo)
-                div.row
-                  form.col-6(action="/home/del/"+articles[i].a_id,method="post")
-                    button="Editer"
-                  form.col-6(action="/home/del/article/"+articles[i].a_id,method="post")
-                    button="Supprimer"
+            if ( (edit != null) && (edit.id == articles[i].a_id) )
+              form.row(action="/home/edite/article/"+articles[i].a_id+"/saved",method="post")
+                div.col-10
+                  input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
+                  div.row
+                  input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link", value=edit.link)
+                  input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub", value=edit.sub)
+                  div.row
+                  textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
+                div.col-2
+                  button.col-12.mb-4.mt-4="Sauvegarder"
+                  div.row
+                  form(action="foo")
+                  form(action="/home/edite/article/"+articles[i].a_id+"/cancel",method="post")
+                    button.col-12.mb-2="Annuler"
+                  div.row
+                  form(action="/home/edite/article/"+articles[i].a_id+"/del",method="post")
+                    button.col-12="Supprimer"
+            else
+              div.col-9
+                h4=articles[i].a_user + ", le " +articles[i].a_date
+                h3=articles[i].a_title
+                h5=articles[i].a_reaction
+              div.col-3
+                if (articles[i].a_user == user.u_pseudo)
+                  div.row
+                    if (edit == null)
+                      form.col-6(action="/home/edite/article/"+articles[i].a_id+"/processing",method="post")
+                        button="Editer"
+                      form.col-6(action="/home/del/article/"+articles[i].a_id,method="post")
+                        button="Supprimer"
         
