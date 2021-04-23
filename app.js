@@ -167,6 +167,35 @@ app.get("/article/:id", async (req, res) => {
       related.push(related_article)
   }
 
+  let comments = new Array
+  let votes = new Array
+  i = -1
+  let comment = 1
+  let vote
+  while ( (comment != undefined) && (i++ < 10) ) {
+    comment = await db.get(`
+      SELECT c.c_id as id, c.c_user as user, c.c_content as content, c.c_score as score, u.u_pseudo as pseudo
+      FROM COMMENTS as c
+      JOIN USERS as u
+      ON c.c_user = u.u_id
+      WHERE c_article = ?
+      ORDER BY c_score DESC
+      LIMIT 10
+      OFFSET ?
+    `,[article.a_id, i])
+
+    if (comment != undefined){
+      comments.push(comment)
+      vote = await db.get(`
+        SELECT * FROM VOTES
+        WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
+      `, [comment.user, comment.id, "comment"])
+    }
+    else
+      vote = undefined
+    votes.push(vote)
+  }
+
   const user = await db.get(`
     SELECT * FROM USERS
     WHERE u_id = ?
@@ -174,7 +203,7 @@ app.get("/article/:id", async (req, res) => {
 
   db.close()
   const edit = req.session.edit
-  res.render("article", {article, user, related, edit})
+  res.render("article", {article, comments, votes, user, related, edit})
 })
 
 // Enregistre le pseudo et le mot de passe entré
@@ -201,7 +230,7 @@ app.post("/signup", async (req, res) => {
 })
 
 // Prend en compte un vote
-app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", async (req, res) => {
+app.post("/:page/:id/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", async (req, res) => {
   const page = req.params.page
   const user = req.params.v_user
   const v_reference = req.params.v_reference
@@ -209,6 +238,7 @@ app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", 
   const v_vote = req.params.v_vote
   const new_score = req.params.new_score
   const change = req.params.change
+  const id = req.params.id
 
   const db = await openDb()
   if (change === "new"){ // première fois que l'utilisateur vote l'article ou le commentaire
@@ -250,16 +280,22 @@ app.post("/:page/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_score", 
 
   db.close()
 
-  res.redirect("/"+page)
+  let path
+  if (id == 0)
+    path = "/home"
+  else
+    path = "/article/"+id
+  res.redirect(path)
 })
 
 // Nouvel article ou commentaire de l'utilisateur
-app.post("/:page/new", async (req, res) => {
+app.post("/:page/:id/new", async (req, res) => {
   const pseudo = req.session.pseudo
   const title = req.body.title
   const link = req.body.link
   const sub = req.body.sub
   const content = req.body.content
+  const id = req.params.id
 
   var date = new Date();
   var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
@@ -272,8 +308,18 @@ app.post("/:page/new", async (req, res) => {
     INSERT INTO ARTICLES (a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub, a_content) VALUES (?, 0, 0, ?, ?, ?, ?, ?)
   `,[pseudo, date, link, title, sub, content])
   }
+  else{ // l'utilisateur écrit un nouveau commentaire
+    await db.run(`
+    INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, 0)
+  `,[id, req.session.u_id, content])
+  }
 
-  res.redirect("/"+req.params.page)
+  let path
+  if (id == 0)
+    path = "/home"
+  else
+    path = "/article/"+id
+  res.redirect(path)
 })
 
 // Edite un article ou un commentaire de l'utilisateur

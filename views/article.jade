@@ -41,6 +41,38 @@ block left
         h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_user
         h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_date
       p.h3.my-a_content=article.a_content
+    form.row.mt-3(action="/comment/"+article.a_id+"/new",method="post")
+      div.col-8
+        textarea.col-12(type="text", rows="6", minlength="1", maxlength="40000", required="required", placeholder="Commentaire",name="content")
+      article.col-4
+        header.h2="Ajoutez un commentaire"
+        p.h5=user.u_pseudo+", réagissez à "+article.a_title +" !"
+        button.mt-3="Valider"
+    - for(var i=0; i < comments.length; i++)
+      div.container.row.mt-5
+        div.col-1.text-center
+          if (votes[i] != undefined)
+            if (votes[i].v_vote == 1)
+              form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")
+                button.mb-2="cancel"
+              h4.text-success=comments[i].score
+              form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 2),method="post")
+                button="down"
+            if (votes[i].v_vote == -1)
+              form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comments[i].id+"/comment/1/"+(comments[i].score + 2),method="post")
+                button.mb-2="up"
+              h4.text-danger=comments[i].score
+              form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/+1/"+(comments[i].score + 1),method="post")
+                button="cancel"
+          else
+            form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+comments[i].id+"/comment/1/"+(comments[i].score + 1),method="post")
+              button.mb-2="up"
+            h4=comments[i].score
+            form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")
+              button="down"
+        article.col-11
+          h3=comments[i].pseudo
+          p=comments[i].content
 
 block right
   div.container

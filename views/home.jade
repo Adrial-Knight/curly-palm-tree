@@ -1,6 +1,6 @@
 extend layout.jade
 block left
-  form.row.mt-3(action="/home/new",method="post")
+  form.row.mt-3(action="/home/0/new",method="post")
     article.col-3
       header.h2="Nouveau post"
       p.h5="Partagez votre nouvelle découverte " + user.u_pseudo + " !"
@@ -18,22 +18,22 @@ block left
         div.col-1.text-center
           if (votes[i] != undefined)
             if (votes[i].v_vote == 1)
-              form(action="/home/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
+              form(action="/home/0/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
                 button.mb-2="cancel"
               h4.text-success=articles[i].a_score
-              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 2),method="post")
+              form(action="/home/0/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 2),method="post")
                 button="down"
             if (votes[i].v_vote == -1)
-              form(action="/home/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 2),method="post")
+              form(action="/home/0/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 2),method="post")
                 button.mb-2="up"
               h4.text-danger=articles[i].a_score
-              form(action="/home/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/+1/"+(articles[i].a_score + 1),method="post")
+              form(action="/home/0/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/+1/"+(articles[i].a_score + 1),method="post")
                 button="cancel"
           else
-            form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
+            form(action="/home/0/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
               button.mb-2="up"
             h4=articles[i].a_score
-            form(action="/home/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
+            form(action="/home/0/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
               button="down"
         div.col-11
           div.row
