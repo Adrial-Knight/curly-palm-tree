@@ -112,39 +112,33 @@ app.get("/home", async (req, res) => {
     WHERE u_id = ?
   `,[req.session.u_id]);
 
-  // On charge les dix articles ayant le plus de vote
-  // ainsi que les intéractions passé de l'utilisateur avec ces articles
-  var articles = new Array
-  var votes = new Array
-  let i = -1
-  let article = 1 // definit article pour passer au moins une fois dans le while
-  let vote
-
-  while ( (article != undefined) && (i++ < 10) ) {
-    article = await db.get(`
-      SELECT * FROM ARTICLES
-      ORDER BY a_score DESC
-      LIMIT 10
-      OFFSET ?
-    `, [i])
-
-    if (article != undefined){
-      articles.push(article)
-
-      vote = await db.get(`
-        SELECT v_vote FROM VOTES
-        WHERE (v_user = ? AND v_reference = ? AND v_kind = "article")
-      `, [user.u_id, articles[i].a_id])
-
-      votes.push(vote)
-      }
-
-    }
+  const articles = await db.all(`
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, v_vote, u_pseudo
+      FROM ARTICLES
+      JOIN VOTES
+      ON a_id = v_reference
+      JOIN USERS
+      ON a_user = u_id
+      WHERE v_user = ?
+    UNION
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, NULL as v_vote, u_pseudo
+      FROM ARTICLES
+      JOIN USERS
+      ON a_user = u_id
+      WHERE a_id NOT IN (SELECT a_id
+          FROM ARTICLES
+          JOIN VOTES
+          ON a_id = v_reference
+          JOIN USERS
+          ON a_user = u_id
+          WHERE v_user = ?)
+    ORDER BY a_score DESC
+    `, [req.session.u_id, req.session.u_id])
 
   db.close()
 
   const edit = req.session.edit
-  res.render("home", {user, articles, votes, edit})
+  res.render("home", {user, articles, edit})
 })
 
 // Affiche la page de profils
@@ -177,7 +171,7 @@ app.get("/profils", async (req, res) =>{
     FROM ARTICLES
     WHERE a_user = ?
     `, user.u_id)
-    
+
   db.close()
 
   res.render("profils", {user, owned, reacted})

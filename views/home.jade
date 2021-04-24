@@ -12,60 +12,59 @@ block left
       input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub")
       div.row
       textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")
-  - for(var i=0; i < articles.length; i++)
-    if (articles[i] != undefined)
-      div.container.row.mt-5
-        div.col-1.align-self-center.text-center.my-text-align-justify
-          if (votes[i] != undefined)
-            if (votes[i].v_vote == 1)
-              form(action="/home/0/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
-                button.mb-2="cancel"
-              h4.text-success=articles[i].a_score
-              form(action="/home/0/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 2),method="post")
-                button="down"
-            if (votes[i].v_vote == -1)
-              form(action="/home/0/vote/udapte/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 2),method="post")
-                button.mb-2="up"
-              h4.text-danger=articles[i].a_score
-              form(action="/home/0/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/+1/"+(articles[i].a_score + 1),method="post")
-                button="cancel"
-          else
-            form(action="/home/0/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/1/"+(articles[i].a_score + 1),method="post")
-              button.mb-2="up"
-            h4=articles[i].a_score
-            form(action="/home/0/vote/new/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")
+  each article in articles
+    div.container.row.mt-5
+      div.col-1.align-self-center.text-center.my-text-align-justify
+        if (article.v_vote != undefined)
+          if (article.v_vote == 1)
+            form(action="/home/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
+              button.mb-2="cancel"
+            h4.text-success=article.a_score
+            form(action="/home/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 2),method="post")
               button="down"
-        div.col-11
-          div.row
-            if ( (edit != null) && (edit.id == articles[i].a_id) )
-              form.row(action="/home/0/edite/article/"+articles[i].a_id+"/saved",method="post")
-                div.col-10
-                  input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
-                  div.row
-                  input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link", value=edit.link)
-                  input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub", value=edit.sub)
-                  div.row
-                  textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
-                div.col-2
-                  button.col-12.mb-4.mt-4="Sauvegarder"
-                  div.row
-                  form(action="foo")
-                  form(action="/home/0/edite/article/"+articles[i].a_id+"/cancel",method="post")
-                    button.col-12.mb-2="Annuler"
-                  div.row
-                  form(action="/home/0/edite/article/"+articles[i].a_id+"/del",method="post")
-                    button.col-12="Supprimer"
-            else
-              a.col-9.text-decoration-none.text-dark(href="/article/"+articles[i].a_id+"?reset=edit")
-                h4=articles[i].a_user + ", le " +articles[i].a_date
-                h3=articles[i].a_title
-                h5=articles[i].a_reaction
-              div.col-3
-                if (articles[i].a_user == user.u_pseudo)
-                  div.row
-                    if (edit == null)
-                      form.col-6(action="/home/0/edite/article/"+articles[i].a_id+"/processing",method="post")
-                        button="Editer"
-                      form.col-6(action="/home/0/del/article/"+articles[i].a_id,method="post")
-                        button="Supprimer"
-        
+          if (article.v_vote == -1)
+            form(action="/home/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 2),method="post")
+              button.mb-2="up"
+            h4.text-danger=article.a_score
+            form(action="/home/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/+1/"+(article.a_score + 1),method="post")
+              button="cancel"
+        else
+          form(action="/home/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 1),method="post")
+            button.mb-2="up"
+          h4=article.a_score
+          form(action="/home/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
+            button="down"
+      div.col-11
+        div.row
+          if ( (edit != null) && (edit.id == article.a_id) )
+            form.row(action="/home/0/edite/article/"+article.a_id+"/saved",method="post")
+              div.col-10
+                input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
+                div.row
+                input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link", value=edit.link)
+                input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub", value=edit.sub)
+                div.row
+                textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
+              div.col-2
+                button.col-12.mb-4.mt-4="Sauvegarder"
+                div.row
+                form(action="foo")
+                form(action="/home/0/edite/article/"+article.a_id+"/cancel",method="post")
+                  button.col-12.mb-2="Annuler"
+                div.row
+                form(action="/home/0/edite/article/"+article.a_id+"/del",method="post")
+                  button.col-12="Supprimer"
+          else
+            a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+              h4=article.u_pseudo + ", le " +article.a_date
+              h3=article.a_title
+              h5=article.a_reaction
+            div.col-3
+              if (article.a_user == user.u_id)
+                div.row
+                  if (edit == null)
+                    form.col-6(action="/home/0/edite/article/"+article.a_id+"/processing",method="post")
+                      button="Editer"
+                    form.col-6(action="/home/0/del/article/"+article.a_id,method="post")
+                      button="Supprimer"
+      
