@@ -101,7 +101,7 @@ app.get("/", async (req, res)=>{
     res.render("login", data)
 
   db.close()
-});
+})
 
 // Affiche l'accueil
 app.get("/home", async (req, res) => {
@@ -145,6 +145,42 @@ app.get("/home", async (req, res) => {
 
   const edit = req.session.edit
   res.render("home", {user, articles, votes, edit})
+})
+
+// Affiche la page de profils
+app.get("/profils", async (req, res) =>{
+  const db = await openDb()
+
+  const user = await db.get(`
+    SELECT * FROM USERS
+    WHERE u_id = ?
+  `,[req.session.u_id])
+
+  const reacted = await db.all(`
+    SELECT U.u_pseudo as owner, A.a_score as score, A.a_reaction as reaction,
+    A.a_link as link, A.a_title as title, A.a_sub as sub
+    FROM ARTICLES as A
+    JOIN USERS as U
+    ON A.a_user = U.u_id
+    WHERE ( a_id IN
+            (SELECT DISTINCT c_article FROM COMMENTS
+            WHERE c_user = ?)
+        OR
+          a_id IN
+            (SELECT v_reference FROM VOTES
+            WHERE v_user = ?) )
+  `, [user.u_id, user.u_id])
+
+  const owned = await db.all(`
+    SELECT a_score as score, a_reaction as reaction, a_link as link,
+    a_title as title, a_sub as sub
+    FROM ARTICLES
+    WHERE a_user = ?
+    `, user.u_id)
+    
+  db.close()
+
+  res.render("profils", {user, owned, reacted})
 })
 
 // Affiche la page d'un article
@@ -322,7 +358,7 @@ app.post("/:page/:id/new", async (req, res) => {
   if (sub != undefined){ // l'utilisateur écrit un nouveau post
     await db.run(`
     INSERT INTO ARTICLES (a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub, a_content) VALUES (?, 0, 0, ?, ?, ?, ?, ?)
-  `,[pseudo, date, link, title, sub, content])
+  `,[req.session.u_id, date, link, title, sub, content])
   }
   else{ // l'utilisateur écrit un nouveau commentaire
     await db.run(`

@@ -1,0 +1,19 @@
+extend layout
+block left
+  h1="Vos posts"
+  div.row
+  each article in owned
+    h5.col-3="nombre de commentaire "+article.reaction
+    h5.col-3="le lien: "+article.link
+    h5.col-3="le titre: "+article.title
+    h5.col-3="le sub: "+article.sub
+    
+  h1="Vos réactions"
+  div.row
+  each article in reacted
+    h5.col-1="nombre de commentaire "+article.reaction
+    h5.col-1="le proprietaire "+article.owner
+    h5.col-3="le lien: "+article.link
+    h5.col-3="le titre: "+article.title
+    h5.col-3="le sub: "+article.sub
+    

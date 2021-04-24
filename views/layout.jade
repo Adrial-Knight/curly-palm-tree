@@ -21,9 +21,9 @@ html(lang="fr")
                 div.col
                   button.btn.btn-outline-dark(type="submit")="Chercher"
           div.col.4.mt-3
-            div.row.justify-content-end
-              div.col-6
-                h3.mr=user.u_pseudo
+            div.row
+              div.col-9
+                a.h3.text-decoration-none.text-dark.float-end(href="/profils")=user.u_pseudo
               div.col-3
                 form(action="/deconnexion",method="post")
                   button(type="deco")="Déconnexion"
