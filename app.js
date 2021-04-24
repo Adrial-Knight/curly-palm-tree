@@ -48,7 +48,9 @@ app.get("/", async (req, res)=>{
     password_error: 0,
     login_request: 1,
     title: "Se connecter",
-    action: "/login"
+    action: "/login",
+    pseudo: null,
+    password: null
   }
 
   let succes_login = 0
@@ -86,6 +88,8 @@ app.get("/", async (req, res)=>{
       data.login_request = 1
       data.title = "Bienvenue " + pseudo_input + ", vous pouvez vous connecter !"
       data.action = "/login"
+      data.pseudo = pseudo_input
+      data.password = password_input
     }
     // else on redirige vers la page d'enregistrement depuis la page de login
   }

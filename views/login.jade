@@ -12,10 +12,10 @@ html(lang="fr")
           form(action=action,autocomplete="off",method="post")
             div.row
               div.col-4
-              input.col-4.mb-3.input-group-text(type="text", minlength="4", maxlength="255", required="required", placeholder="Pseudo",name="pseudo_input")
+              input.col-4.mb-3.input-group-text(type="text", minlength="4", maxlength="255", required="required", placeholder="Pseudo",name="pseudo_input", value=pseudo)
             div.row
               div.col-4
-              input.col-4.mb-3.input-group-text(type="password", minlength="6", maxlength="255", required="required", placeholder="Mot de passe",name="password_input")
+              input.col-4.mb-3.input-group-text(type="password", minlength="6", maxlength="255", required="required", placeholder="Mot de passe",name="password_input", value=password)
             div.row
               if (action == "/signup")
                 div.col-4
