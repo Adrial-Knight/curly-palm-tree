@@ -350,10 +350,15 @@ app.post("/:page/edite/:kind/:id/:status", async (req, res) => {
 
       req.session.edit = null
     }
-    else if (req.params.status == "del"){ // on supprime l'article
+    else if (req.params.status == "del"){ // on supprime l'article et les commentaires associés
       await db.run(`
         DELETE FROM ARTICLES
         WHERE a_id = ?
+      `,[req.session.edit.id])
+
+      await db.run(`
+        DELETE FROM COMMENTS
+        WHERE c_article = ?
       `,[req.session.edit.id])
 
       req.session.edit = null
@@ -381,13 +386,18 @@ app.post("/:page/del/:kind/:id", async (req, res) => {
     await db.run(`
       DELETE FROM ARTICLES
       WHERE a_id = ?
-    `,[req.params.id]);
+    `,[req.params.id])
+
+    await db.run(`
+      DELETE FROM COMMENTS
+      WHERE c_article = ?
+    `,[req.params.id])
   }
   else {
     await db.run(`
       DELETE FROM COMMENTS
       WHERE c_id = ?
-    `,[req.params.id]);
+    `,[req.params.id])
   }
   res.redirect("/home")
 })
