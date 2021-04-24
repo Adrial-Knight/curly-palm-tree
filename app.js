@@ -203,6 +203,7 @@ app.get("/article/:id", async (req, res) => {
 
   db.close()
   const edit = req.session.edit
+  console.log(edit)
   res.render("article", {article, comments, votes, user, related, edit})
 })
 
@@ -323,18 +324,18 @@ app.post("/:page/:id/new", async (req, res) => {
 })
 
 // Edite un article ou un commentaire de l'utilisateur
-app.post("/:page/edite/:kind/:id/:status", async (req, res) => {
+app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
   const db = await openDb()
   if (req.params.kind == "article"){
     if (req.params.status == "processing"){
       const article = await db.get(`
         SELECT a_title, a_link, a_content, a_sub FROM ARTICLES
         WHERE a_id = ?
-      `, [req.params.id])
+      `, [req.params.target_id])
 
       req.session.edit = {
         kind: req.params.kind,
-        id: req.params.id,
+        id: req.params.target_id,
         title: article.a_title,
         link: article.a_link,
         content: article.a_content,
@@ -366,40 +367,83 @@ app.post("/:page/edite/:kind/:id/:status", async (req, res) => {
     else if (req.params.status == "cancel")// on ne prend pas en compte les modifications (bouton "annuler")
       req.session.edit = null
   }
+  else{ // commentaire
+    if (req.params.status == "processing"){
+      const comment = await db.get(`
+        SELECT c_article, c_user, c_content FROM COMMENTS
+        WHERE c_id = ?
+      `, [req.params.target_id])
+
+      req.session.edit = {
+        kind: req.params.kind, // est-ce utile ?
+        id: req.params.target_id,
+        article: comment.c_article,
+        owner: comment.c_user,
+        content: comment.c_content
+      }
+    }
+    else if (req.params.status == "saved"){ //on enregistre les modifications
+      await db.run(`
+      UPDATE COMMENTS
+      SET c_content = ?
+      WHERE c_id = ?
+    `,[req.body.content, req.session.edit.id])
+
+      req.session.edit = null
+    }
+    else if (req.params.status == "del"){ // on supprime le commentaire
+      await db.run(`
+        DELETE FROM COMMENTS
+        WHERE c_id = ?
+      `,[req.session.edit.id])
+
+      req.session.edit = null
+    }
+    else if (req.params.status == "cancel")// on ne prend pas en compte les modifications (bouton "annuler")
+      req.session.edit = null
+  }
 
   db.close()
 
   let path
-  if (req.params.page == "article")
-    path = "/article/"+req.params.id
-  if ( (req.params.page == "home") || (req.params.status == "del") )
+  if ( (req.params.kind == "comment") || (req.params.kind == "article") )
+    path = "/article/"+req.params.page_id
+  if ( (req.params.page == "home") || ( (req.params.kind == "article") && (req.params.status == "del") ) )
     path = "/home"
 
   res.redirect(path)
 })
 
 // Suppression d'un article ou d'un commentaire de l'utilisateur
-app.post("/:page/del/:kind/:id", async (req, res) => {
+app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
 
   const db = await openDb()
   if (req.params.kind === "article"){
     await db.run(`
       DELETE FROM ARTICLES
       WHERE a_id = ?
-    `,[req.params.id])
+    `,[req.params.target_id])
 
     await db.run(`
       DELETE FROM COMMENTS
       WHERE c_article = ?
-    `,[req.params.id])
+    `,[req.params.target_id])
   }
   else {
     await db.run(`
       DELETE FROM COMMENTS
       WHERE c_id = ?
-    `,[req.params.id])
+    `,[req.params.target_id])
   }
-  res.redirect("/home")
+
+  let path
+
+  if (req.params.kind == "comment")
+    path = "/article/"+req.params.page_id
+  if ((req.params.page == "home") || (req.params.kind == "article"))
+    path = "/home"
+
+  res.redirect(path)
 })
 
 // Enregistre la date et l'heure, et se deconnecte

@@ -38,7 +38,7 @@ block left
         div.col-11
           div.row
             if ( (edit != null) && (edit.id == articles[i].a_id) )
-              form.row(action="/home/edite/article/"+articles[i].a_id+"/saved",method="post")
+              form.row(action="/home/0/edite/article/"+articles[i].a_id+"/saved",method="post")
                 div.col-10
                   input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
                   div.row
@@ -50,10 +50,10 @@ block left
                   button.col-12.mb-4.mt-4="Sauvegarder"
                   div.row
                   form(action="foo")
-                  form(action="/home/edite/article/"+articles[i].a_id+"/cancel",method="post")
+                  form(action="/home/0/edite/article/"+articles[i].a_id+"/cancel",method="post")
                     button.col-12.mb-2="Annuler"
                   div.row
-                  form(action="/home/edite/article/"+articles[i].a_id+"/del",method="post")
+                  form(action="/home/0/edite/article/"+articles[i].a_id+"/del",method="post")
                     button.col-12="Supprimer"
             else
               a.col-9.text-decoration-none.text-dark(href="/article/"+articles[i].a_id)
@@ -64,8 +64,8 @@ block left
                 if (articles[i].a_user == user.u_pseudo)
                   div.row
                     if (edit == null)
-                      form.col-6(action="/home/edite/article/"+articles[i].a_id+"/processing",method="post")
+                      form.col-6(action="/home/0/edite/article/"+articles[i].a_id+"/processing",method="post")
                         button="Editer"
-                      form.col-6(action="/home/del/article/"+articles[i].a_id,method="post")
+                      form.col-6(action="/home/0/del/article/"+articles[i].a_id,method="post")
                         button="Supprimer"
         
