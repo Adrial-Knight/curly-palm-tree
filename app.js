@@ -203,7 +203,7 @@ app.get("/article/:id", async (req, res) => {
 
   db.close()
   const edit = req.session.edit
-  console.log(edit)
+
   res.render("article", {article, comments, votes, user, related, edit})
 })
 
@@ -424,6 +424,15 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
       WHERE a_id = ?
     `,[req.params.target_id])
 
+    // Supprime les commentaires votés dans VOTES
+    await db.run(`
+      DELETE FROM VOTES
+      WHERE v_reference IN
+      	(SELECT c_id FROM COMMENTS
+      	WHERE c_article = ?)
+    `, [req.params.target_id])
+
+    // Supprime les commentaires
     await db.run(`
       DELETE FROM COMMENTS
       WHERE c_article = ?
@@ -435,6 +444,12 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
       WHERE c_id = ?
     `,[req.params.target_id])
   }
+
+  // Supprime la référence cible de la table VOTES
+  await db.run(`
+    DELETE FROM VOTES
+    WHERE v_reference = ?
+  `, [req.params.target_id])
 
   let path
 
