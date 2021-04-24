@@ -15,7 +15,7 @@ block left
   - for(var i=0; i < articles.length; i++)
     if (articles[i] != undefined)
       div.container.row.mt-5
-        div.col-1.text-center
+        div.col-1.align-self-center.text-center.my-text-align-justify
           if (votes[i] != undefined)
             if (votes[i].v_vote == 1)
               form(action="/home/0/vote/cancel/"+user.u_id+"/"+articles[i].a_id+"/article/-1/"+(articles[i].a_score - 1),method="post")

@@ -1,10 +1,33 @@
 extend layout
-block link
-  style
-    include CSS/article.css
 block left
+    div.row
+      div.row
+        div.col-1.align-self-center.text-center.mb-3
+          if (vote != undefined)
+            if (vote.v_vote == 1)
+              form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
+                button.mb-2="cancel"
+              h4.text-success=article.a_score
+              form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 2),method="post")
+                button="down"
+            if (vote.v_vote == -1)
+              form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 2),method="post")
+                button.mb-2="up"
+              h4.text-danger=article.a_score
+              form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/+1/"+(article.a_score + 1),method="post")
+                button="cancel"
+          else
+            form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 1),method="post")
+              button.mb-2="up"
+            h4=article.a_score
+            form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
+              button="down"
+        if ( (edit != null) && (edit.kind == "article") )
+          h1.col-10.align-self-center.text-center="Modification de "+article.a_title
+        else
+          h1.col-10.align-self-center.text-center=article.a_title
+        div.col-1
     if ( ((user.u_pseudo == article.a_user) && (edit == null)) || ((edit != null) && (edit.kind != "article")) )
-      h1.text-center=article.a_title
       div.row
         nav.nav.nav-pills.fs-7.lh-1.col-9
           a.h4.nav-link.active.rounded-pill(href=article.a_link)=article.a_link
@@ -19,7 +42,6 @@ block left
               button.nav-link.bg-danger.rounded-pill.text-white="Supprimer"
         p.h3.my-a_content=article.a_content
     else if ( (edit != null) && (edit.id == article.a_id) )
-      h1.text-center="Modification de "+article.a_title
       form.row(action="/article/"+article.a_id+"/edite/article/"+article.a_id+"/saved",method="post")
         input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
         div.row
@@ -35,7 +57,6 @@ block left
           form(action="/article/"+article.a_id+"/edite/article/"+article.a_id+"/del",method="post")
             button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
     else
-      h1.text-center=article.a_title
       nav.nav.nav-pills.fs-7.lh-1
         a.h4.nav-link.active.rounded-pill(href=article.a_link)=article.a_link
         h4.nav-link.bg-secondary.rounded-pill.text-white=article.a_user
@@ -44,13 +65,13 @@ block left
     form.row.mt-3(action="/comment/"+article.a_id+"/new",method="post")
       div.col-8
         textarea.col-12(type="text", rows="6", minlength="1", maxlength="40000", required="required", placeholder="Commentaire",name="content")
-      article.col-4
+      article.col-4.align-self-center
         header.h2="Ajoutez un commentaire"
         p.h5=user.u_pseudo+", réagissez à "+article.a_title +" !"
         button.nav-link.bg-success.rounded-pill.text-white.mb-3="Valider"
     - for(var i=0; i < comments.length; i++)
       div.container.row.mt-5
-        div.col-1.text-center
+        div.col-1.align-self-center.text-center
           if (votes[i] != undefined)
             if (votes[i].v_vote == 1)
               form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")

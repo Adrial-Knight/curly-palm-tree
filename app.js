@@ -210,10 +210,16 @@ app.get("/article/:id", async (req, res) => {
     WHERE u_id = ?
   `,[req.session.u_id])
 
+  // vote de l'article
+  vote = await db.get(`
+    SELECT * FROM VOTES
+    WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
+  `, [user.u_id, req.params.id, "article"])
+
   db.close()
   const edit = req.session.edit
 
-  res.render("article", {article, comments, votes, user, related, edit})
+  res.render("article", {article, comments, votes, vote, user, related, edit})
 })
 
 // Enregistre le pseudo et le mot de passe entré
