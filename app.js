@@ -33,6 +33,8 @@ app.get("/", async (req, res)=>{
   const password_input = req.session.password
   const email_input = req.session.email
   const signup = req.session.signup
+  if(req.query.reset == "edit")
+    req.session.edit = null
 
   const db = await openDb()
 
@@ -143,6 +145,9 @@ app.get("/home", async (req, res) => {
 
 // Affiche la page d'un article
 app.get("/article/:id", async (req, res) => {
+  if(req.query.reset == "edit")
+    req.session.edit = null
+
   const db = await openDb()
 
   const article = await db.get(`

@@ -51,26 +51,25 @@ block left
     - for(var i=0; i < comments.length; i++)
       div.container.row.mt-5
         div.col-1.text-center
-          if ((edit == null) && (comments[i].user == user.u_id))
-            if (votes[i] != undefined)
-              if (votes[i].v_vote == 1)
-                form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")
-                  button.mb-2="cancel"
-                h4.text-success=comments[i].score
-                form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 2),method="post")
-                  button="down"
-              if (votes[i].v_vote == -1)
-                form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comments[i].id+"/comment/1/"+(comments[i].score + 2),method="post")
-                  button.mb-2="up"
-                h4.text-danger=comments[i].score
-                form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/+1/"+(comments[i].score + 1),method="post")
-                  button="cancel"
-            else
-              form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+comments[i].id+"/comment/1/"+(comments[i].score + 1),method="post")
-                button.mb-2="up"
-              h4=comments[i].score
-              form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")
+          if (votes[i] != undefined)
+            if (votes[i].v_vote == 1)
+              form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")
+                button.mb-2="cancel"
+              h4.text-success=comments[i].score
+              form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 2),method="post")
                 button="down"
+            if (votes[i].v_vote == -1)
+              form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comments[i].id+"/comment/1/"+(comments[i].score + 2),method="post")
+                button.mb-2="up"
+              h4.text-danger=comments[i].score
+              form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comments[i].id+"/comment/+1/"+(comments[i].score + 1),method="post")
+                button="cancel"
+          else
+            form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+comments[i].id+"/comment/1/"+(comments[i].score + 1),method="post")
+              button.mb-2="up"
+            h4=comments[i].score
+            form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+comments[i].id+"/comment/-1/"+(comments[i].score - 1),method="post")
+              button="down"
         article.col-11
           div.row
             h3.col-9=comments[i].pseudo
@@ -94,11 +93,11 @@ block left
                       button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
               else
                 p=comments[i].content
-            
-
+            else
+              p=comments[i].content
 block right
   div.container
     h2.text-center.mt-5="Aussi dans la sub reddit'eirb "+article.a_sub
     - for(var i=0; i < related.length; i++)
       div.row.mt-4
-      a.h4.text-decoration-none.text-dark(href="/article/"+related[i].a_id)=related[i].a_title+" de "+related[i].a_user+" avec un score de "+related[i].a_score
+      a.h4.text-decoration-none.text-dark(href="/article/"+related[i].a_id+"?reset=edit")=related[i].a_title+" de "+related[i].a_user+" avec un score de "+related[i].a_score

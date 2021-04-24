@@ -56,7 +56,7 @@ block left
                   form(action="/home/0/edite/article/"+articles[i].a_id+"/del",method="post")
                     button.col-12="Supprimer"
             else
-              a.col-9.text-decoration-none.text-dark(href="/article/"+articles[i].a_id)
+              a.col-9.text-decoration-none.text-dark(href="/article/"+articles[i].a_id+"?reset=edit")
                 h4=articles[i].a_user + ", le " +articles[i].a_date
                 h3=articles[i].a_title
                 h5=articles[i].a_reaction
