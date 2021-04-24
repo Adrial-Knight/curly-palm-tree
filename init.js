@@ -69,7 +69,7 @@ async function createTables(db){
   }
 
   sql_insert = `INSERT INTO ARTICLES (a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub, a_content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  await db.run(sql_insert, ["max", 0, 1, date, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
+  await db.run(sql_insert, [2, 0, 1, date, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
 
   sql_insert = `INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, ?)`
   await db.run(sql_insert, [1, 1, "Excellent site pour faire des recherches!",1])

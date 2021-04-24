@@ -185,56 +185,45 @@ app.get("/article/:id", async (req, res) => {
   const db = await openDb()
 
   const article = await db.get(`
-    SELECT * FROM ARTICLES
+    SELECT a_id, a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub,
+    a_content, u_pseudo
+    FROM ARTICLES
+    JOIN USERS
+    ON a_user = u_id
     WHERE a_id = ?
   `,[req.params.id])
 
-  var related = new Array
-  let i = -1
-  let related_article = 1 // definit article pour passer au moins une fois dans le while
-
-  while ( (related_article != undefined) && (i++ < 10) ) {
-    related_article = await db.get(`
+  var related = await db.all(`
       SELECT a_id, a_title, a_user, a_score FROM ARTICLES
       WHERE (a_id != ? AND a_sub = ?)
       ORDER BY a_score DESC
-      LIMIT 10
-      OFFSET ?
-    `, [article.a_id, article.a_sub, i])
+    `)
 
-    if (related_article != undefined)
-      related.push(related_article)
-  }
-
-  let comments = new Array
-  let votes = new Array
-  i = -1
-  let comment = 1
-  let vote
-  while ( (comment != undefined) && (i++ < 10) ) {
-    comment = await db.get(`
-      SELECT c.c_id as id, c.c_user as user, c.c_content as content, c.c_score as score, u.u_pseudo as pseudo
-      FROM COMMENTS as c
-      JOIN USERS as u
-      ON c.c_user = u.u_id
-      WHERE c_article = ?
-      ORDER BY c_score DESC
-      LIMIT 10
-      OFFSET ?
-    `,[article.a_id, i])
-
-    if (comment != undefined){
-      comments.push(comment)
-      vote = await db.get(`
-        SELECT * FROM VOTES
-        WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
-      `, [comment.user, comment.id, "comment"])
-    }
-    else
-      vote = undefined
-    votes.push(vote)
-  }
-
+  const comments = await db.all(`
+      SELECT c_id, c_user, c_score, c_content, v_vote, u_pseudo
+      FROM COMMENTS
+      JOIN VOTES
+      ON c_id = v_reference
+      JOIN USERS
+      ON c_user = u_id
+      WHERE c_article = ? AND v_kind = "comment"
+    UNION
+      SELECT c_id, c_user, c_score, c_content, null as v_vote, u_pseudo
+      FROM COMMENTS
+      JOIN USERS
+      ON c_user = u_id
+      WHERE c_article = ? AND c_id NOT IN
+          (SELECT c_id
+          FROM COMMENTS
+          JOIN VOTES
+          ON c_id = v_reference
+          JOIN USERS
+          ON c_user = u_id
+          WHERE c_article = ? AND v_kind = "comment"
+          )
+    ORDER BY c_score DESC
+    `, [req.params.id, req.params.id, req.params.id])
+  console.log(comments);
   const user = await db.get(`
     SELECT * FROM USERS
     WHERE u_id = ?
@@ -249,7 +238,7 @@ app.get("/article/:id", async (req, res) => {
   db.close()
   const edit = req.session.edit
 
-  res.render("article", {article, comments, votes, vote, user, related, edit})
+  res.render("article", {article, comments, vote, user, related, edit})
 })
 
 // Enregistre le pseudo et le mot de passe entré
