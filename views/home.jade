@@ -1,10 +1,6 @@
 extend layout.jade
-block left
-  form.row.mt-3(action="/home/0/new",method="post")
-    article.col-3
-      header.h2="Nouveau post"
-      p.h5="Partagez votre nouvelle découverte " + user.u_pseudo + " !"
-      button="Publier"
+block top
+  form.row.mt-3.mb-5(action="/home/0/new",method="post")
     div.col-9
       input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="title")
       div.row
@@ -12,8 +8,13 @@ block left
       input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub")
       div.row
       textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")
+    article.col-3
+      header.h2.text-center="Nouveau post"
+      p.h5="Partagez votre nouvelle découverte " + user.u_pseudo + " !"
+      button="Publier"
+block left
   each article in articles
-    div.container.row.mt-5
+    div.container.row.mb-5
       div.col-1.align-self-center.text-center.my-text-align-justify
         if (article.v_vote != undefined)
           if (article.v_vote == 1)
@@ -67,4 +68,9 @@ block left
                       button="Editer"
                     form.col-6(action="/home/0/del/article/"+article.a_id,method="post")
                       button="Supprimer"
-      
+block right
+  h2.mb-5.text-center="Sub-reddit'eirb populaires"
+  each sub in subs
+    div.row
+      a.h3.text-decoration-none.text-dark(href="sub/"+sub.title)=sub.title
+        h4.mb-4="score global:" + sub.score

@@ -81,7 +81,7 @@ block left
                 button="down"
             if (comment.v_vote == -1)
               form(action="/article/"+article.a_id+"/vote/udapte/"+user.u_id+"/"+comment.c_id+"/comment/1/"+(comment.c_score + 2),method="post")
-                button.mb-2="here red"
+                button.mb-2="up"
               h4.text-danger=comment.c_score
               form(action="/article/"+article.a_id+"/vote/cancel/"+user.u_id+"/"+comment.c_id+"/comment/+1/"+(comment.c_score + 1),method="post")
                 button="cancel"

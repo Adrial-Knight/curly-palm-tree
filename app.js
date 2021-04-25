@@ -125,7 +125,8 @@ app.get("/home", async (req, res) => {
       FROM ARTICLES
       JOIN USERS
       ON a_user = u_id
-      WHERE a_id NOT IN (SELECT a_id
+      WHERE a_id NOT IN
+          (SELECT a_id
           FROM ARTICLES
           JOIN VOTES
           ON a_id = v_reference
@@ -135,10 +136,19 @@ app.get("/home", async (req, res) => {
     ORDER BY a_score DESC
     `, [req.session.u_id, req.session.u_id])
 
+
+  // on trie en sommant le score des articles
+  const subs = await db.all(`
+    SELECT a_sub as title, SUM(a_score) as score
+    FROM ARTICLES
+    GROUP BY a_sub
+    ORDER BY SUM(a_score) DESC
+    `)
+
   db.close()
 
   const edit = req.session.edit
-  res.render("home", {user, articles, edit})
+  res.render("home", {user, articles, edit, subs})
 })
 
 // Affiche la page de profils
@@ -219,11 +229,10 @@ app.get("/article/:id", async (req, res) => {
           ON c_id = v_reference
           JOIN USERS
           ON c_user = u_id
-          WHERE c_article = ? AND v_kind = "comment"
-          )
+          WHERE c_article = ? AND v_kind = "comment")
     ORDER BY c_score DESC
     `, [req.params.id, req.params.id, req.params.id])
-  console.log(comments);
+
   const user = await db.get(`
     SELECT * FROM USERS
     WHERE u_id = ?
@@ -239,6 +248,53 @@ app.get("/article/:id", async (req, res) => {
   const edit = req.session.edit
 
   res.render("article", {article, comments, vote, user, related, edit})
+})
+
+// Affiche la page d'une sous-catégorie
+app.get("/sub/:name", async (req, res) => {
+  const db = await openDb()
+
+  const user = await db.get(`
+    SELECT * FROM USERS
+    WHERE u_id = ?
+  `,[req.session.u_id])
+
+  const articles = await db.all(`
+    SELECT a_id, a_title, a_user, a_score, a_date, v_vote, u_pseudo
+    FROM ARTICLES
+    JOIN VOTES
+    ON a_id = v_reference
+    JOIN USERS
+    ON a_user = u_id
+    WHERE ( (a_sub = ?) AND (v_kind = "article") )
+  UNION
+    SELECT a_id, a_title, a_user, a_score, a_date, null as v_vote, u_pseudo
+    FROM ARTICLES
+    JOIN USERS
+    ON a_user = u_id
+    WHERE a_sub = ? AND a_id NOT IN
+        (SELECT a_id
+        FROM ARTICLES
+        JOIN VOTES
+        ON a_id = v_reference
+        JOIN USERS
+        ON a_user = u_id
+        WHERE ( (a_sub = ?) AND (v_kind = "article") ) )
+    ORDER BY a_score DESC
+    `, [req.params.name, req.params.name, req.params.name])
+
+  const sub = await db.get(`
+    SELECT a_sub as title, a_date as creation
+    FROM ARTICLES
+    WHERE a_sub = ?
+    ORDER BY a_id
+  `,[req.params.name])
+
+  db.close()
+
+  const edit = req.session.edit
+
+  res.render("sub", {user, articles, sub, edit})
 })
 
 // Enregistre le pseudo et le mot de passe entré
@@ -316,10 +372,12 @@ app.post("/:page/:id/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_scor
   db.close()
 
   let path
-  if (id == 0)
+  if (page == "home")
     path = "/home"
-  else
+  else if (page == "article")
     path = "/article/"+id
+  else if (page == "sub")
+    path = "/sub/"+id
   res.redirect(path)
 })
 
@@ -377,6 +435,9 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
       }
     }
     else if (req.params.status == "saved"){ //on enregistre les modifications
+      if (req.params.page == "sub") // on ne change pas de catégorie depuis la page des catégories
+        req.body.sub = req.params.page_id
+
       await db.run(`
       UPDATE ARTICLES
       SET a_title = ?, a_link = ?, a_sub = ?, a_content = ?
@@ -440,9 +501,17 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
   db.close()
 
   let path
-  if ( (req.params.kind == "comment") || (req.params.kind == "article") )
-    path = "/article/"+req.params.page_id
-  if ( (req.params.page == "home") || ( (req.params.kind == "article") && (req.params.status == "del") ) )
+  if (req.params.page == "article"){
+    if ( (req.params.kind == "comment") || (req.params.kind == "article") ){
+      path = "/article/"+req.params.page_id
+      if ( (req.params.kind == "article") && (req.params.status == "del") )
+        path = "/home"
+    }
+  }
+  else if (req.params.page == "sub")
+    path = "/sub/"+req.params.page_id
+
+  else
     path = "/home"
 
   res.redirect(path)
@@ -489,7 +558,9 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
 
   if (req.params.kind == "comment")
     path = "/article/"+req.params.page_id
-  if ((req.params.page == "home") || (req.params.kind == "article"))
+  else if (req.params.page == "sub")
+    path = "/sub/"+req.params.page_id
+  else if ((req.params.page == "home") || (req.params.kind == "article"))
     path = "/home"
 
   res.redirect(path)
