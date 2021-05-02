@@ -59,7 +59,10 @@ block left
             a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
               h4=article.u_pseudo + ", le " +article.a_date
               h3=article.a_title
-              h5=article.a_reaction
+              if (article.a_reaction > 1)
+                h5=article.a_reaction + " commentaires"
+              else
+                h5=article.a_reaction + " commentaire"
             div.col-3
               if (article.a_user == user.u_id)
                 div.row
@@ -73,4 +76,4 @@ block right
   each sub in subs
     div.row
       a.h3.text-decoration-none.text-dark(href="sub/"+sub.title)=sub.title
-        h4.mb-4="score global:" + sub.score
+        h4.mb-4="score global: " + sub.score

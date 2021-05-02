@@ -1,7 +1,7 @@
 extend layout
 block top
   h1.text-center=sub.title
-  h3.text-center.mb-5="Le plus ancien post remonte au "+sub.creation
+  h3.text-center.mb-5="Dernier post le "+sub.creation
   each article in articles
     div.container.row.mb-5
       div.col-1.align-self-center.text-center.my-text-align-justify
@@ -49,7 +49,10 @@ block top
             a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
               h4=article.u_pseudo + ", le " +article.a_date
               h3=article.a_title
-              h5=article.a_reaction
+              if (article.a_reaction > 1)
+                h5=article.a_reaction + " commentaires"
+              else
+                h5=article.a_reaction + " commentaire"
             div.col-3
               if (article.a_user == user.u_id)
                 div.row
