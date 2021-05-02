@@ -49,6 +49,7 @@ async function createTables(db){
     CREATE TABLE IF NOT EXISTS VOTES(
         v_user INTEGER,
         v_reference INTEGER,
+        v_date date,
         v_kind varchar(7),
         v_vote INTEGER
     );
@@ -57,25 +58,24 @@ async function createTables(db){
   const u_pseudos = ["bob", "max"]
   const u_mails = ["bob@gmail.com", "max@gmail.com"]
   const u_passwords = ["bob", "max"]
-  var date = new Date();
+  const date = new Date();
   var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
-  date = date.toLocaleDateString("fr-FR", options)
-  const u_connexions = [date, date]
+  const date_fr = date.toLocaleDateString("fr-FR", options)
 
   let sql_insert = `INSERT INTO USERS (u_pseudo, u_mail, u_password, u_connexion) VALUES (?, ?, ?, ?)`
 
   for (var i = 0; i < u_pseudos.length; i++) {
-    await db.run(sql_insert, [u_pseudos[i], u_mails[i], u_passwords[i], u_connexions[i]])
+    await db.run(sql_insert, [u_pseudos[i], u_mails[i], u_passwords[i], date_fr])
   }
 
   sql_insert = `INSERT INTO ARTICLES (a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub, a_content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  await db.run(sql_insert, [2, 0, 1, date, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
+  await db.run(sql_insert, [2, 0, 1, date_fr, "http://google.fr", "Mon nouveau moteur de recherche", "Web", "blablabla"])
 
   sql_insert = `INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, ?)`
   await db.run(sql_insert, [1, 1, "Excellent site pour faire des recherches!",1])
 
-  sql_insert = `INSERT INTO VOTES (v_user, v_reference, v_kind, v_vote) VALUES (?, ?, ?, ?)`
-  await db.run(sql_insert, [2, 1, "comment", 1])
+  sql_insert = `INSERT INTO VOTES (v_user, v_reference, v_date, v_kind, v_vote) VALUES (?, ?, ?, ?, ?)`
+  await db.run(sql_insert, [2, 1, date, "comment", 1])
 
 }
 
