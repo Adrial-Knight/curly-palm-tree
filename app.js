@@ -160,31 +160,85 @@ app.get("/profils", async (req, res) =>{
     WHERE u_id = ?
   `,[req.session.u_id])
 
+  const comments_in_reacted = await db.all(`
+    SELECT c_id, a_id, c_content, c_score, v_vote
+		  FROM ARTICLES
+		  JOIN COMMENTS
+		  ON a_id = c_article
+		  JOIN VOTES
+		  ON v_reference = c_id
+		  WHERE c_user = ? AND a_user != ?
+UNION
+	SELECT c_id, a_id, c_content, c_score, null as v_vote
+	  FROM ARTICLES
+		  JOIN COMMENTS
+		  ON a_id = c_article
+		  WHERE c_user = ? AND a_user != ? AND c_id NOT IN
+		  (SELECT c_id
+		  FROM ARTICLES
+		  JOIN COMMENTS
+		  ON a_id = c_article
+      JOIN VOTES
+		  ON v_reference = c_id
+		  WHERE c_user = ? AND a_user != ?
+		  )
+    ORDER BY a_id, c_id DESC
+      `, [req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id])
+
   const reacted = await db.all(`
-    SELECT U.u_pseudo as owner, A.a_score as score, A.a_reaction as reaction,
-    A.a_link as link, A.a_title as title, A.a_sub as sub
-    FROM ARTICLES as A
-    JOIN USERS as U
-    ON A.a_user = U.u_id
-    WHERE ( a_id IN
-            (SELECT DISTINCT c_article FROM COMMENTS
+    SELECT u_id, u_pseudo, a_id, a_score, a_reaction, a_link, a_title, a_sub, a_date, v_vote, v_date
+      FROM ARTICLES
+      JOIN USERS
+      ON a_user = u_id
+      JOIN VOTES
+      ON a_id = v_reference
+      WHERE v_user = ? AND u_id != ?
+  UNION
+    SELECT u_id, u_pseudo, a_id, a_score, a_reaction, a_link, a_title, a_sub, a_date, null as v_vote, null as v_date
+      FROM ARTICLES
+      JOIN USERS
+      ON a_user = u_id
+      WHERE a_id NOT IN
+          (SELECT a_id
+            FROM ARTICLES
+            JOIN USERS
+            ON a_user = u_id
+            JOIN VOTES
+            ON a_id = v_reference
+            WHERE v_user = ? AND u_id != ?)
+        AND a_id IN
+          (SELECT a_id
+            FROM ARTICLES
+            JOIN COMMENTS
+            ON a_id = c_article
             WHERE c_user = ?)
-        OR
-          a_id IN
-            (SELECT v_reference FROM VOTES
-            WHERE v_user = ?) )
-  `, [user.u_id, user.u_id])
+        AND u_id != ?
+  ORDER BY v_date DESC
+  `, [user.u_id, user.u_id, user.u_id, user.u_id, user.u_id, user.u_id])
 
   const owned = await db.all(`
-    SELECT a_score as score, a_reaction as reaction, a_link as link,
-    a_title as title, a_sub as sub
-    FROM ARTICLES
-    WHERE a_user = ?
-    `, user.u_id)
+      SELECT DISTINCT a_id, a_score, a_reaction, a_date, a_title, v_vote, a_user
+        FROM ARTICLES
+        JOIN VOTES
+        ON a_id = v_reference
+        WHERE a_user = ? AND v_reference = a_id AND v_kind = "article"
+    UNION
+    	SELECT DISTINCT a_id, a_score, a_reaction, a_date, a_title, null as v_vote, a_user
+      	FROM ARTICLES
+      	WHERE a_user = ? AND a_id NOT IN
+      		(SELECT DISTINCT a_id
+      		FROM ARTICLES
+      		JOIN VOTES
+      		ON a_id = v_reference
+      		WHERE a_user = ? AND v_reference = a_id AND v_kind = "article")
+    ORDER BY a_score DESC
+      `, [req.session.u_id, req.session.u_id, req.session.u_id])
 
   db.close()
 
-  res.render("profils", {user, owned, reacted})
+  const edit = req.session.edit
+
+  res.render("profils", {user, owned, reacted, edit, comments_in_reacted})
 })
 
 // Affiche la page d'un article
@@ -260,7 +314,7 @@ app.get("/sub/:name", async (req, res) => {
   `,[req.session.u_id])
 
   const articles = await db.all(`
-    SELECT a_id, a_title, a_user, a_score, a_date, v_vote, u_pseudo
+    SELECT a_id, a_title, a_user, a_score, a_date, a_reaction, v_vote, u_pseudo
     FROM ARTICLES
     JOIN VOTES
     ON a_id = v_reference
@@ -268,7 +322,7 @@ app.get("/sub/:name", async (req, res) => {
     ON a_user = u_id
     WHERE ( (a_sub = ?) AND (v_kind = "article") )
   UNION
-    SELECT a_id, a_title, a_user, a_score, a_date, null as v_vote, u_pseudo
+    SELECT a_id, a_title, a_user, a_score, a_date, a_reaction, null as v_vote, u_pseudo
     FROM ARTICLES
     JOIN USERS
     ON a_user = u_id
@@ -283,11 +337,13 @@ app.get("/sub/:name", async (req, res) => {
     ORDER BY a_score DESC
     `, [req.params.name, req.params.name, req.params.name])
 
+
+
   const sub = await db.get(`
     SELECT a_sub as title, a_date as creation
     FROM ARTICLES
     WHERE a_sub = ?
-    ORDER BY a_id
+    ORDER BY a_id DESC
   `,[req.params.name])
 
   db.close()
@@ -333,9 +389,10 @@ app.post("/:page/:id/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_scor
 
   const db = await openDb()
   if (change === "new"){ // première fois que l'utilisateur vote l'article ou le commentaire
+    const date = new Date();
     await db.run(`
-    INSERT INTO VOTES (v_user, v_reference, v_kind, v_vote) VALUES (?, ?, ?, ?)
-  `,[user, v_reference, v_kind, v_vote])
+    INSERT INTO VOTES (v_user, v_reference, v_date, v_kind, v_vote) VALUES (?, ?, ?, ?, ?)
+  `,[user, v_reference, date, v_kind, v_vote])
   }
 
   else if (change === "udapte"){  // l'utilisateur change son vote
@@ -378,6 +435,8 @@ app.post("/:page/:id/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_scor
     path = "/article/"+id
   else if (page == "sub")
     path = "/sub/"+id
+  else if (page == "profils")
+    path = "/profils"
   res.redirect(path)
 })
 
@@ -405,6 +464,12 @@ app.post("/:page/:id/new", async (req, res) => {
     await db.run(`
     INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, 0)
   `,[id, req.session.u_id, content])
+
+  await db.run(`
+    UPDATE ARTICLES
+    SET a_reaction = a_reaction + 1
+    WHERE a_id = ?
+  `, [id])
   }
 
   let path
@@ -510,7 +575,8 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
   }
   else if (req.params.page == "sub")
     path = "/sub/"+req.params.page_id
-
+  else if (req.params.page == "profils")
+    path = "/profils"
   else
     path = "/home"
 
@@ -541,12 +607,18 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
       WHERE c_article = ?
     `,[req.params.target_id])
   }
-  else {
+  else { // Supprime un seul commentaire
     await db.run(`
       DELETE FROM COMMENTS
       WHERE c_id = ?
     `,[req.params.target_id])
-  }
+
+    await db.run(`
+      UPDATE ARTICLES
+      SET a_reaction = a_reaction - 1
+      WHERE a_id = ?
+    `, [req.params.page_id])
+    }
 
   // Supprime la référence cible de la table VOTES
   await db.run(`
@@ -560,6 +632,8 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
     path = "/article/"+req.params.page_id
   else if (req.params.page == "sub")
     path = "/sub/"+req.params.page_id
+  else if (req.params.page == "profils")
+    path = "/profils"
   else if ((req.params.page == "home") || (req.params.kind == "article"))
     path = "/home"
 
