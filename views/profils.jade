@@ -1,6 +1,6 @@
 extend layout
 block left
-  h1="Vos posts"
+  h1.mb-5.text-center="Vos posts"
   div.row
   each article in owned
     div.container.row.mb-5
@@ -60,7 +60,7 @@ block left
                   form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
                     button="Supprimer"
     
-  h1="Les autres posts auxquels vous avez réagis"
+  h1.mb-5.text-center="Les autres posts auxquels vous avez réagis"
   div.row
     -var com_index = 0
     each article in reacted
@@ -170,6 +170,9 @@ block left
                       form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_reacted[com_index].c_id+"/del",method="post")
                         button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
           - com_index = com_index + 1
-
-            
-    
+block right
+  h1.mb-5.text-center="Vos informations"
+  h4="Pseudo: "+user.u_pseudo
+  h4="Mail: "+user.u_mail
+  h4.mt-4="Nombre de contribution: "+(owned.length + comments_in_reacted.length)
+  h4="Dernière connexion le "+user.u_connexion
