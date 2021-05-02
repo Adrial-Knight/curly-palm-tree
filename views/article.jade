@@ -118,7 +118,8 @@ block left
               p=comment.c_content
 block right
   div.container
-    h2.text-center.mt-5="Aussi dans la sub reddit'eirb "+article.a_sub
+    div.text-center.mt-5
+      a.h2.text-decoration-none.text-dark(href="/sub/"+article.a_sub)="Aussi dans la sub reddit'eirb "+article.a_sub
     each article in related
       div.row.mt-4
       a.h4.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")=article.a_title+" de "+article.a_user+" avec un score de "+article.a_score
