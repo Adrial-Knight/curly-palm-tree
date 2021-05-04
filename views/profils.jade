@@ -45,24 +45,74 @@ block left
                 form(action="/profils/0/edite/article/"+article.a_id+"/del",method="post")
                   button.col-12="Supprimer"
           else
-            a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
-              h4=user.u_pseudo + ", le " +article.a_date
+            div.row
+              a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+                  h4=user.u_pseudo + ", le " +article.a_date
+              div.col-3
+                div.row
+                  if (edit == null)
+                    form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
+                      button="Editer"
+                    form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
+                      button="Supprimer"
               h3=article.a_title
-              if (article.a_reaction > 1)
-                h5=article.a_reaction + " commentaires"
-              else
-                h5=article.a_reaction + " commentaire"
-            div.col-3
-              div.row
+                if (article.a_reaction > 1)
+                  h5=article.a_reaction + " commentaires"
+                else
+                  h5=article.a_reaction + " commentaire"
+      div.row
+        div.col-1
+        div.col-11.mb-3
+          h4= "Vos commentaires: "
+      -var com_index = 0
+      - while ((comments_in_owned[com_index] != undefined) && (article.a_id == comments_in_owned[com_index].a_id))
+          div.row.mb-3
+            div.col-1
+            div.col-1.text-center
+                if (comments_in_owned[com_index].v_vote != undefined)
+                  if (comments_in_owned[com_index].v_vote == 1)
+                    form(action="/profils/0/vote/cancel/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/-1/"+(comments_in_owned[com_index].c_score - 1),method="post")
+                      button.mb-2="cancel"
+                    h4.text-success=comments_in_owned[com_index].c_score
+                    form(action="/profils/0/vote/udapte/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/-1/"+(comments_in_owned[com_index].c_score - 2),method="post")
+                      button="down"
+                  if (comments_in_owned[com_index].v_vote == -1)
+                    form(action="/profils/0/vote/udapte/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/1/"+(comments_in_owned[com_index].c_score + 2),method="post")
+                      button.mb-2="up"
+                    h4.text-danger=comments_in_owned[com_index].c_score
+                    form(action="/profils/0/vote/cancel/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/+1/"+(comments_in_owned[com_index].c_score + 1),method="post")
+                      button="cancel"
+                else
+                  form(action="/profils/0/vote/new/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/1/"+(comments_in_owned[com_index].c_score + 1),method="post")
+                    button.mb-2="up"
+                  h4=comments_in_owned[com_index].c_score
+                  form(action="/profils/0/vote/new/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/-1/"+(comments_in_owned[com_index].c_score - 1),method="post")
+                    button="down"
+              div.col-10
                 if (edit == null)
-                  form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
-                    button="Editer"
-                  form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
-                    button="Supprimer"
+                  div.row
+                    div.col-9
+                      p= comments_in_owned[com_index].c_content
+                    div.col-3
+                      nav.nav.nav-pills.fs-7.lh-1.justify-content-end
+                        form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/processing",method="post")
+                          button.nav-link.bg-dark.rounded-pill.text-info.mb-2="Editer"
+                        form(action="/profils/"+article.a_id+"/del/comment/"+comments_in_owned[com_index].c_id,method="post")
+                          button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
+                else if ( (edit.kind == "comment") && (comments_in_owned[com_index].c_id == edit.id) )
+                  form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/saved",method="post")
+                    textarea.col-12(type="text", rows="7", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
+                    nav.nav.nav-pills.fs-7.lh-1.justify-content-end
+                      button.nav-link.bg-success.rounded-pill.text-white.mb-2="Valider"
+                      form(action="foo")
+                      form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/cancel",method="post")
+                        button.nav-link.bg-warning.rounded-pill.text-white.mb-2="Annuler"
+                      form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/del",method="post")
+                        button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
+          - com_index = com_index + 1
     
   h1.mb-5.text-center="Les autres posts auxquels vous avez réagis"
   div.row
-    -var com_index = 0
     each article in reacted
       div.container.row.mb-5
         div.col-1.align-self-center.text-center.my-text-align-justify
@@ -119,11 +169,12 @@ block left
                     form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
                       button="Editer"
                     form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
-                      button="Supprimer"
+                      button="Supprimer"                      
         div.row
           div.col-1
           div.col-11.mb-3
             h4= "Vos commentaires: "
+        -var com_index = 0
         - while ((comments_in_reacted[com_index] != undefined) && (article.a_id == comments_in_reacted[com_index].a_id))
           - nb_comment++
             div.row.mb-3

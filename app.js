@@ -234,11 +234,35 @@ UNION
     ORDER BY a_score DESC
       `, [req.session.u_id, req.session.u_id, req.session.u_id])
 
+  const comments_in_owned = await db.all(`
+    SELECT c_id, a_id, c_content, c_score, v_vote
+		  FROM ARTICLES
+		  JOIN COMMENTS
+		  ON a_id = c_article
+		  JOIN VOTES
+		  ON v_reference = c_id
+		  WHERE c_user = ? AND a_user = ?
+UNION
+	SELECT c_id, a_id, c_content, c_score, null as v_vote
+	  FROM ARTICLES
+		  JOIN COMMENTS
+		  ON a_id = c_article
+		  WHERE c_user = ? AND a_user = ? AND c_id NOT IN
+		  (SELECT c_id
+		  FROM ARTICLES
+		  JOIN COMMENTS
+		  ON a_id = c_article
+      JOIN VOTES
+		  ON v_reference = c_id
+		  WHERE c_user = ? AND a_user = ?
+		  )
+    ORDER BY a_id, c_id DESC
+      `, [req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id])
+
   db.close()
 
   const edit = req.session.edit
-
-  res.render("profils", {user, owned, reacted, edit, comments_in_reacted})
+  res.render("profils", {user, owned, reacted, edit, comments_in_reacted, comments_in_owned})
 })
 
 // Affiche la page d'un article
