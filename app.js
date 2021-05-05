@@ -687,8 +687,10 @@ app.post("/search", async (req, res) => {
   sql_request += search_choice+` LIKE '`+key_words[0]+`%'`
 
   for (var i = 1; i < key_words.length; i++) {
-    sql_request += ` OR `+search_choice+` LIKE `+key_words[i]+`%'`
+    sql_request += ` OR `+search_choice+` LIKE '`+key_words[i]+`%'`
   }
+
+  sql_request += ` ORDER BY a_id DESC`
 
   // exécute la requête
   const articles = await db.all(sql_request)
