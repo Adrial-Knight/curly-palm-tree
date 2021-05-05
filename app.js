@@ -664,6 +664,60 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
   res.redirect(path)
 })
 
+app.post("/search", async (req, res) => {
+  const db = await openDb()
+
+  const user = await db.get(`
+    SELECT * FROM USERS
+    WHERE u_pseudo = ?
+  `,[req.session.pseudo]);
+
+  let search_choice = req.body.search_choice
+
+  // construit une requête de recherche selon les mots passés en argument
+
+  const input = req.body.search_input
+  const key_words = input.split(' ')
+
+  sql_request=`SELECT a_id, a_user, a_title, a_score, a_reaction, a_date, a_link, a_sub, a_content, u_pseudo FROM ARTICLES JOIN USERS ON u_id = a_user WHERE `
+  if (search_choice == "a_user"){
+    search_choice = "u_pseudo"
+  }
+
+  sql_request += search_choice+` LIKE '`+key_words[0]+`%'`
+
+  for (var i = 1; i < key_words.length; i++) {
+    sql_request += ` OR `+search_choice+` LIKE `+key_words[i]+`%'`
+  }
+
+  // exécute la requête
+  const articles = await db.all(sql_request)
+
+  switch (search_choice) {
+    case "a_title":
+      header="Recherche avec '"+input+"' comme titre des posts"
+      break;
+    case "u_pseudo":
+      header="Recherche des posts publiés par '"+input+"'"
+      break;
+    case "a_sub":
+      header="Recherche pour la catégorie '"+input+"'"
+      break;
+    case "a_content":
+      header="Recherche les posts traitant de '"+input+"'"
+      break
+    default:
+      header="Erreur POST search"
+      break
+  }
+
+  if (articles.length == 0)
+    header="La r"+header.slice(1)+" n'a rien donné..."
+
+  res.render("result", {articles, user, header})
+}
+);
+
 // Enregistre la date et l'heure, et se deconnecte
 app.post("/deconnexion", async (req, res) => {
   const db = await openDb()

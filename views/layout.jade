@@ -11,16 +11,37 @@ html(lang="fr")
     header
       div.container
         div.row
-          div.col.4.mt-3
+          div.col-3.align-self-center
             a.text-secondary.font-weight-bold.text-decoration-none.fs-5(href="/?reset=edit")="Reddit'eirb"
-          div.col.4.mt-2
+          div.col.5.mt-2
             form(action="/search",autocomplete="off",method="post")
-              div.row
-                div.col
-                  input.form-control(type="text", placeholder="Search",name="search_input")
-                div.col
-                  button.btn.btn-outline-dark(type="submit")="Chercher"
-          div.col.4.mt-3
+              div.col
+                input.form-control(type="text", required="required", placeholder="Chercher un article",name="search_input")
+              div.col
+                div.row
+                  div.col-auto.align-self-center
+                    div.form-check
+                      input.form-check-input(type="radio" name="search_choice" id="a_title" value="a_title" checked="checked")
+                      label.form-check-label(for="a_title")
+                        Default Titre
+                  div.col-auto.align-self-center
+                    div.form-check
+                      input.form-check-input(type="radio" name="search_choice" id="a_sub" value="a_sub")
+                      label.form-check-label(for="a_sub")
+                        Default.checked Sub-reddit
+                  div.col-auto.align-self-center
+                    div.form-check
+                      input.form-check-input(type="radio" name="search_choice" id="a_user" value="a_user")
+                      label.form-check-label(for="a_user")
+                        Default.checked Auteur
+                  div.col-auto.align-self-center.mr-auto
+                    div.form-check
+                      input.form-check-input(type="radio" name="search_choice" id="a_content" value="a_content")
+                      label.form-check-label(for="a_content")
+                        Default.checked Contenu 
+                  div.col-auto.justify-content-between.ms-auto
+                    button.btn.btn-outline-dark(type="submit")="Chercher"
+          div.col.4.mt-3.align-self-center
             div.row
               div.col-9
                 a.h3.text-decoration-none.text-dark.float-end(href="/profils")=user.u_pseudo
