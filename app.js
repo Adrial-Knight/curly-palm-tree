@@ -1,12 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express()
-const port = 3000
+const app = express();
+const port = 3000;
 
 app.set('views', './views');
 app.set('view engine', 'jade');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
+app.use(bodyParser.json());
+var path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 
 const session = require('express-session')
 const SQLiteStore = require('connect-sqlite3')(session);
