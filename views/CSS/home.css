@@ -4,15 +4,24 @@
   border-radius: 10px;
 }
 
+#publish{
+  border-radius: 25px;
+  font-size: 18px;
+  color: #3c9851;
+}
+
+#publish:hover{
+  background-color: #3c9851;
+}
+
 /*Le bouton "Publier"*/
 #top > form > article > button{
   width: 100%;
 }
 
 /*Les votes*/
-#left > .container > .col-auto{
-  background-color: #c6b7b7;
-  padding: 5px 10px 5px 10px;
+#upped, #downed, #nulled{
+  padding: 5px 7px 5px 7px;
   margin-right: 15px;
   border-radius: 10px;
 }
@@ -27,7 +36,15 @@
 /*Les sub-reddits*/
 
 #right > div > h2, #right > .row{
-  background-color: #a79072;
+  background-color: #ae9473;
   margin: 7px;
   border-radius: 10px;
+}
+
+#bottom-illustration{
+  width: 100%;
+  display: block;
+  margin-top: 3%;
+  margin-left: auto;
+  margin-right: auto;
 }

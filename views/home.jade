@@ -14,30 +14,32 @@ block top
       header.h2.text-center.mt-2="Nouveau post"
       p.h5.text-center="Partagez votre nouvelle découverte " + user.u_pseudo + " !"
         div.row
-        button.mt-4.btn-lg.btn-block.text-center="Publier"
+        button#publish.mt-4.btn-lg.btn-block.text-center="Publier"
 block left
   each article in articles
     div.container.row.mb-4
-      div.col.col-auto.align-self-center.text-center.my-text-align-justify
-        if (article.v_vote != undefined)
-          if (article.v_vote == 1)
+      if (article.v_vote != undefined)
+        if (article.v_vote == 1)
+          div#upped.col.col-auto.align-self-center.text-center.my-text-align-justify
             form(action="/home/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
-              button.mb-2="cancel"
-            h4.text-success=article.a_score
+              button.mb-2#cancel="cancel"
+            h4=article.a_score
             form(action="/home/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 2),method="post")
-              button="down"
-          if (article.v_vote == -1)
+              button#down="down"
+        if (article.v_vote == -1)
+          div#downed.col.col-auto.align-self-center.text-center.my-text-align-justify
             form(action="/home/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 2),method="post")
-              button.mb-2="up"
-            h4.text-danger=article.a_score
+              button.mb-2#up="up"
+            h4=article.a_score
             form(action="/home/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/+1/"+(article.a_score + 1),method="post")
-              button="cancel"
-        else
+              button#cancel="cancel"
+      else
+        div#nulled.col.col-auto.align-self-center.text-center.my-text-align-justify
           form(action="/home/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 1),method="post")
-            button.mb-2="up"
+            button.mb-2#up="up"
           h4=article.a_score
           form(action="/home/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
-            button="down"
+            button#down="down"
       div.col-10
         div.row
           if ( (edit != null) && (edit.id == article.a_id) )
@@ -50,14 +52,14 @@ block left
                 div.row
                 textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
               div.col-2
-                button.col-12.mb-4.mt-4="Sauvegarder"
+                button#save.col-12.mb-4.mt-4="Sauvegarder"
                 div.row
                 form(action="foo")
                 form(action="/home/0/edite/article/"+article.a_id+"/cancel",method="post")
-                  button.col-12.mb-2="Annuler"
+                  button#cancel.col-12.mb-2="Annuler"
                 div.row
                 form(action="/home/0/edite/article/"+article.a_id+"/del",method="post")
-                  button.col-12="Supprimer"
+                  button#delete.col-12="Supprimer"
           else
             a.col-9.text-decoration-none.text-dark.mt-1(href="/article/"+article.a_id+"?reset=edit")
               h4=article.u_pseudo + ", le " +article.a_date
@@ -66,18 +68,19 @@ block left
                 h5=article.a_reaction + " commentaires"
               else
                 h5=article.a_reaction + " commentaire"
-            div.col-3
+            div.col-2
               if (article.a_user == user.u_id)
                 div.row.mt-2
                   if (edit == null)
                     form.col-6(action="/home/0/edite/article/"+article.a_id+"/processing",method="post")
-                      button="Editer"
+                      button#edit="Editer"
                     form.col-6(action="/home/0/del/article/"+article.a_id,method="post")
-                      button="Supprimer"
+                      button#delete="Supprimer"
 block right
-  div.row.mb-5
+  div.row.mb-5.mt-3
     h2.col-auto.text-center="Sub-reddit'eirb populaires"
   each sub in subs
     div.row
       a.h3.text-decoration-none.text-dark.mt-2(href="sub/"+sub.title)=sub.title
         h4="score global: " + sub.score
+  img#bottom-illustration(src="./footer_illustration.svg" alt="fin des catégories" width="1024")

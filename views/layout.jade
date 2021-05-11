@@ -5,6 +5,7 @@ html(lang="fr")
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
     style
       include CSS/general.css
+      include CSS/layout.css
       block link
     title="Reddit'eirb"
   body
@@ -12,8 +13,10 @@ html(lang="fr")
       div.container
         div.row
           div.col-3.align-self-center
-            a.text-secondary.font-weight-bold.text-decoration-none.fs-5(href="/?reset=edit")="Reddit'eirb"
-              img#logo(src="https://pminier.vvv.enseirb.fr/DDLC.png" alt="Reddit'eirb")
+            a.row(href="/?reset=edit")
+              img#DDLC.col.col-auto(src="./DDLC_mirror.png" alt="logo DDLC")
+              h3.col-auto.mt-4.pt-3.text-dark="Accueil"
+              img#ENSEIRB.col-auto.h-100(src="./ENSEIRB-MATMECA.png" alt="logo ENSEIRB")
           div.col.5.mt-2
             form(action="/search",autocomplete="off",method="post")
               div.col
@@ -41,16 +44,17 @@ html(lang="fr")
                       label.form-check-label(for="a_content")
                         Default.checked Contenu 
                   div.col-auto.justify-content-between.ms-auto
-                    button.btn.btn-outline-dark(type="submit")="Chercher"
+                    button#search(type="submit")="Chercher"
           div.col.4.mt-3.align-self-center
             div.row
               div.col-9
-                a.h3.text-decoration-none.text-dark.float-end(href="/profils")=user.u_pseudo
+                a#pseudo.h3.text-dark.float-end(href="/profils")=user.u_pseudo
               div.col-3
-                form(action="/deconnexion",method="post")
-                  button(type="deco")="Déconnexion"
+                form.mt-2(action="/deconnexion",method="post")
+                  button#deconnexion(type="deco")="Déconnexion"
     div.container
       div#top
+        br
         block top
       div.row
         div.col-9#left

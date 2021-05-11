@@ -1,10 +1,89 @@
 body{
-  background-color: #DAE0E6;
+  background-color: #dae0e6;
 }
 
-#logo{
-  width: 35px;
-  margin:5px 10px 0 20px;
+a{
+  text-decoration: none;
+}
+
+/*Votes*/
+
+#upped{
+  background-color: #3c9851;
+}
+
+#downed{
+  background-color: #db3b4b;
+}
+
+#nulled{
+  background-color: #b4bed8;
+}
+
+/*Buttons*/
+
+button{
+  border-radius: 30px;
+  font-size: 15px;
+  color: white;
+  background-color: #dae0e6;
+  cursor: pointer;
+}
+
+button:hover{
+  color: black !important;
+}
+
+#up{
+  padding-left: 21px;
+  padding-right: 21px;
+  color: #3c9851;
+}
+
+#up:hover{
+  background-color: #3c9851;
+}
+
+#down{
+  padding-left: 11px;
+  padding-right: 11px;
+  color: #db3b4b;
+}
+
+#down:hover{
+  background-color: #db3b4b;
+}
+
+#cancel{
+  color: #e9630b;
+}
+
+#cancel:hover{
+  background-color: #e9630b;
+}
+
+#edit{
+  color: #60458c;
+}
+
+#edit:hover{
+  background-color: #60458c;
+}
+
+#delete{
+  color: #db3b4b;
+}
+
+#delete:hover{
+  background-color: #db3b4b;
+}
+
+#save{
+  color: #3c9851;
+}
+
+#save:hover{
+  background-color: #3c9851;
 }
 
 .my-a_content{

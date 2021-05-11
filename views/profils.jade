@@ -8,22 +8,22 @@ block left
         if (article.v_vote != undefined)
           if (article.v_vote == 1)
             form(action="/profils/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
-              button.mb-2="cancel"
+              button#cancel.mb-2="cancel"
             h4.text-success=article.a_score
             form(action="/profils/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 2),method="post")
-              button="down"
+              button#down="down"
           if (article.v_vote == -1)
             form(action="/profils/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 2),method="post")
-              button.mb-2="up"
+              button#up.mb-2="up"
             h4.text-danger=article.a_score
             form(action="/profils/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/+1/"+(article.a_score + 1),method="post")
-              button="cancel"
+              button#cancel="cancel"
         else
           form(action="/profils/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 1),method="post")
-            button.mb-2="up"
+            button#up.mb-2="up"
           h4=article.a_score
           form(action="/profils/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
-            button="down"
+            button#down="down"
       div.col-11
         div.row
           if ( (edit != null) && (edit.id == article.a_id) )
@@ -36,14 +36,14 @@ block left
                 div.row
                 textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
               div.col-2
-                button.col-12.mb-4.mt-4="Sauvegarder"
+                button#save.col-12.mb-4.mt-4="Sauvegarder"
                 div.row
                 form(action="foo")
                 form(action="/profils/0/edite/article/"+article.a_id+"/cancel",method="post")
-                  button.col-12.mb-2="Annuler"
+                  button#cancel.col-12.mb-2="Annuler"
                 div.row
                 form(action="/profils/0/edite/article/"+article.a_id+"/del",method="post")
-                  button.col-12="Supprimer"
+                  button#delete.col-12="Supprimer"
           else
             div.row
               a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
@@ -52,9 +52,9 @@ block left
                 div.row
                   if (edit == null)
                     form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
-                      button="Editer"
+                      button#edit="Editer"
                     form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
-                      button="Supprimer"
+                      button#delete="Supprimer"
               h3=article.a_title
                 if (article.a_reaction > 1)
                   h5=article.a_reaction + " commentaires"
@@ -72,22 +72,22 @@ block left
                 if (comments_in_owned[com_index].v_vote != undefined)
                   if (comments_in_owned[com_index].v_vote == 1)
                     form(action="/profils/0/vote/cancel/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/-1/"+(comments_in_owned[com_index].c_score - 1),method="post")
-                      button.mb-2="cancel"
+                      button#cancel.mb-2="cancel"
                     h4.text-success=comments_in_owned[com_index].c_score
                     form(action="/profils/0/vote/udapte/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/-1/"+(comments_in_owned[com_index].c_score - 2),method="post")
-                      button="down"
+                      button#down="down"
                   if (comments_in_owned[com_index].v_vote == -1)
                     form(action="/profils/0/vote/udapte/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/1/"+(comments_in_owned[com_index].c_score + 2),method="post")
-                      button.mb-2="up"
+                      button#up.mb-2="up"
                     h4.text-danger=comments_in_owned[com_index].c_score
                     form(action="/profils/0/vote/cancel/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/+1/"+(comments_in_owned[com_index].c_score + 1),method="post")
-                      button="cancel"
+                      button#cancel="cancel"
                 else
                   form(action="/profils/0/vote/new/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/1/"+(comments_in_owned[com_index].c_score + 1),method="post")
-                    button.mb-2="up"
+                    button#up.mb-2="up"
                   h4=comments_in_owned[com_index].c_score
                   form(action="/profils/0/vote/new/"+user.u_id+"/"+comments_in_owned[com_index].c_id+"/comment/-1/"+(comments_in_owned[com_index].c_score - 1),method="post")
-                    button="down"
+                    button#down="down"
               div.col-10
                 if (edit == null)
                   div.row
@@ -96,19 +96,19 @@ block left
                     div.col-3
                       nav.nav.nav-pills.fs-7.lh-1.justify-content-end
                         form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/processing",method="post")
-                          button.nav-link.bg-dark.rounded-pill.text-info.mb-2="Editer"
+                          button#edit.nav-link.bg-dark.rounded-pill.text-info.mb-2="Editer"
                         form(action="/profils/"+article.a_id+"/del/comment/"+comments_in_owned[com_index].c_id,method="post")
-                          button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
+                          button#delete.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
                 else if ( (edit.kind == "comment") && (comments_in_owned[com_index].c_id == edit.id) )
                   form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/saved",method="post")
                     textarea.col-12(type="text", rows="7", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
                     nav.nav.nav-pills.fs-7.lh-1.justify-content-end
-                      button.nav-link.bg-success.rounded-pill.text-white.mb-2="Valider"
+                      button#save.nav-link.bg-success.rounded-pill.text-white.mb-2="Valider"
                       form(action="foo")
                       form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/cancel",method="post")
-                        button.nav-link.bg-warning.rounded-pill.text-white.mb-2="Annuler"
+                        button#cancel.nav-link.bg-warning.rounded-pill.text-white.mb-2="Annuler"
                       form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index].c_id+"/del",method="post")
-                        button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
+                        button#delete.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
           - com_index = com_index + 1
     
   h1.mb-5.text-center="Les autres posts auxquels vous avez réagis"
@@ -119,22 +119,22 @@ block left
           if (article.v_vote != undefined)
             if (article.v_vote == 1)
               form(action="/profils/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
-                button.mb-2="cancel"
+                button#cancel.mb-2="cancel"
               h4.text-success=article.a_score
               form(action="/profils/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 2),method="post")
                 button="down"
             if (article.v_vote == -1)
               form(action="/profils/0/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 2),method="post")
-                button.mb-2="up"
+                button#up.mb-2="up"
               h4.text-danger=article.a_score
               form(action="/profils/0/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/+1/"+(article.a_score + 1),method="post")
-                button="cancel"
+                button#cancel="cancel"
           else
             form(action="/profils/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 1),method="post")
-              button.mb-2="up"
+              button#up.mb-2="up"
             h4=article.a_score
             form(action="/profils/0/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
-              button="down"
+              button#down="down"
         div.col-11
           div.row
             if ( (edit != null) && (edit.id == article.a_id) )
@@ -147,14 +147,14 @@ block left
                   div.row
                   textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
                 div.col-2
-                  button.col-12.mb-4.mt-4="Sauvegarder"
+                  button#save.col-12.mb-4.mt-4="Sauvegarder"
                   div.row
                   form(action="foo")
                   form(action="/profils/0/edite/article/"+article.a_id+"/cancel",method="post")
-                    button.col-12.mb-2="Annuler"
+                    button#cancel.col-12.mb-2="Annuler"
                   div.row
                   form(action="/profils/0/edite/article/"+article.a_id+"/del",method="post")
-                    button.col-12="Supprimer"
+                    button#delete.col-12="Supprimer"
             else
               a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
                 h4=article.u_pseudo + ", le " +article.a_date
@@ -167,9 +167,9 @@ block left
                 div.row
                 if ( (edit == null) && (article.a_user == user.u_id) )
                     form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
-                      button="Editer"
+                      button#edit="Editer"
                     form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
-                      button="Supprimer"                      
+                      button#delete="Supprimer"                      
         div.row
           div.col-1
           div.col-11.mb-3
@@ -183,22 +183,22 @@ block left
                 if (comments_in_reacted[com_index].v_vote != undefined)
                   if (comments_in_reacted[com_index].v_vote == 1)
                     form(action="/profils/0/vote/cancel/"+user.u_id+"/"+comments_in_reacted[com_index].c_id+"/comment/-1/"+(comments_in_reacted[com_index].c_score - 1),method="post")
-                      button.mb-2="cancel"
+                      button#cancel.mb-2="cancel"
                     h4.text-success=comments_in_reacted[com_index].c_score
                     form(action="/profils/0/vote/udapte/"+user.u_id+"/"+comments_in_reacted[com_index].c_id+"/comment/-1/"+(comments_in_reacted[com_index].c_score - 2),method="post")
-                      button="down"
+                      button#down="down"
                   if (comments_in_reacted[com_index].v_vote == -1)
                     form(action="/profils/0/vote/udapte/"+user.u_id+"/"+comments_in_reacted[com_index].c_id+"/comment/1/"+(comments_in_reacted[com_index].c_score + 2),method="post")
-                      button.mb-2="up"
+                      button#up.mb-2="up"
                     h4.text-danger=comments_in_reacted[com_index].c_score
                     form(action="/profils/0/vote/cancel/"+user.u_id+"/"+comments_in_reacted[com_index].c_id+"/comment/+1/"+(comments_in_reacted[com_index].c_score + 1),method="post")
-                      button="cancel"
+                      button#cancel="cancel"
                 else
                   form(action="/profils/0/vote/new/"+user.u_id+"/"+comments_in_reacted[com_index].c_id+"/comment/1/"+(comments_in_reacted[com_index].c_score + 1),method="post")
-                    button.mb-2="up"
+                    button#up.mb-2="up"
                   h4=comments_in_reacted[com_index].c_score
                   form(action="/profils/0/vote/new/"+user.u_id+"/"+comments_in_reacted[com_index].c_id+"/comment/-1/"+(comments_in_reacted[com_index].c_score - 1),method="post")
-                    button="down"
+                    button#down="down"
               div.col-10
                 if (edit == null)
                   div.row
@@ -207,19 +207,19 @@ block left
                     div.col-3
                       nav.nav.nav-pills.fs-7.lh-1.justify-content-end
                         form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_reacted[com_index].c_id+"/processing",method="post")
-                          button.nav-link.bg-dark.rounded-pill.text-info.mb-2="Editer"
+                          button#edit.nav-link.bg-dark.rounded-pill.text-info.mb-2="Editer"
                         form(action="/profils/"+article.a_id+"/del/comment/"+comments_in_reacted[com_index].c_id,method="post")
-                          button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
+                          button#delete.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
                 else if ( (edit.kind == "comment") && (comments_in_reacted[com_index].c_id == edit.id) )
                   form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_reacted[com_index].c_id+"/saved",method="post")
                     textarea.col-12(type="text", rows="7", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
                     nav.nav.nav-pills.fs-7.lh-1.justify-content-end
-                      button.nav-link.bg-success.rounded-pill.text-white.mb-2="Valider"
+                      button#publish.nav-link.bg-success.rounded-pill.text-white.mb-2="Valider"
                       form(action="foo")
                       form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_reacted[com_index].c_id+"/cancel",method="post")
-                        button.nav-link.bg-warning.rounded-pill.text-white.mb-2="Annuler"
+                        button#delete.nav-link.bg-warning.rounded-pill.text-white.mb-2="Annuler"
                       form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_reacted[com_index].c_id+"/del",method="post")
-                        button.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
+                        button#delete.nav-link.bg-danger.rounded-pill.text-white.mb-2="Supprimer"
           - com_index = com_index + 1
 block right
   h1.mb-5.text-center="Vos informations"

@@ -1,0 +1,32 @@
+#search, #deconnexion{
+  color: #47bff3;
+  background-color: #000000;
+}
+
+#search:hover, #deconnexion:hover{
+  background-color: #47bff3;
+}
+
+#DDLC{
+  width: 55px;
+  margin:5px 10px 0 20px;
+}
+
+#ENSEIRB{
+  width: 100px;
+  margin:10px 0 0 10px;
+}
+
+#pseudo{
+  color: 000000;
+  border-radius: 15px;
+  background-color: #b4bed8;
+  padding: 8px;
+}
+
+#bottom-illustration{
+  width: 80%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
