@@ -1,3 +1,12 @@
+body{
+  background-color: #DAE0E6;
+}
+
+#logo{
+  width: 35px;
+  margin:5px 10px 0 20px;
+}
+
 .my-a_content{
   text-align: justify;
   font-size: 20px;

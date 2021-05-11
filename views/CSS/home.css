@@ -1,0 +1,33 @@
+/*La rubrique "nouveau post"*/
+#top > form > article{
+  background-color: #bbdb80;
+  border-radius: 10px;
+}
+
+/*Le bouton "Publier"*/
+#top > form > article > button{
+  width: 100%;
+}
+
+/*Les votes*/
+#left > .container > .col-auto{
+  background-color: #c6b7b7;
+  padding: 5px 10px 5px 10px;
+  margin-right: 15px;
+  border-radius: 10px;
+}
+
+/*Les articles*/
+
+#left > .container > .col-10{
+  background-color: #b4bed8;
+  border-radius: 10px;
+}
+
+/*Les sub-reddits*/
+
+#right > div > h2, #right > .row{
+  background-color: #a79072;
+  margin: 7px;
+  border-radius: 10px;
+}
