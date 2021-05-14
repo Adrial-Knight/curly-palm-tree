@@ -146,6 +146,7 @@ app.get("/home", async (req, res) => {
     FROM ARTICLES
     GROUP BY a_sub
     ORDER BY SUM(a_score) DESC
+    LIMIT 5
     `)
 
   db.close()
@@ -291,6 +292,7 @@ app.get("/article/:id", async (req, res) => {
       ON a_user = u_id
       WHERE (a_id != ? AND a_sub = ?)
       ORDER BY a_score DESC
+      LIMIT 10
     `, [article.a_id, article.a_sub])
 
   const comments = await db.all(`
@@ -381,6 +383,21 @@ app.get("/sub/:name", async (req, res) => {
   const edit = req.session.edit
 
   res.render("sub", {user, articles, sub, edit})
+})
+
+// Recherche les articles d'un utilisateur
+app.get("/search_user/:u_pseudo", async (req, res) => {
+  const db = await openDb()
+  const user = await db.get(`SELECT * FROM USERS WHERE u_id = ?`, [req.session.u_id])
+  const articles = await db.all(`
+    SELECT *
+    FROM ARTICLES
+    JOIN USERS
+    ON a_user = u_id
+    WHERE u_pseudo = ?
+    `, [req.params.u_pseudo])
+  const header="Recherche des posts publiés par '"+req.params.u_pseudo+"'"
+  res.render("result", {user, articles, header})
 })
 
 // Enregistre le pseudo et le mot de passe entré

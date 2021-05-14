@@ -1,9 +1,3 @@
-/*La rubrique "nouveau post"*/
-#top > form > article{
-  background-color: #bbdb80;
-  border-radius: 10px;
-}
-
 #publish{
   border-radius: 25px;
   font-size: 18px;
@@ -21,16 +15,33 @@
 
 /*Les sub-reddits*/
 
-#right > div > h2, #right > .row{
+#Navigation {
+  display: block;
+  position: fixed;
+  bottom: 1;
+  margin-bottom: 20px;
+}
+
+ #anchor{
+   background-color: #ae9473;
+   padding-right: 125px;
+   padding-left: 15px;
+   margin: 7px;
+   border-radius: 10px;
+ }
+
+#sub{
   background-color: #ae9473;
+  padding: 7px 14px 7px 14px;
   margin: 7px;
   border-radius: 10px;
 }
 
-#bottom-illustration{
-  width: 100%;
+#menu-illustration{
+  width: 90%;
   display: block;
-  margin-top: 3%;
+  margin-bottom: 4px;
   margin-left: auto;
   margin-right: auto;
+  z-index: -1
 }

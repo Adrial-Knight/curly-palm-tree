@@ -10,7 +10,7 @@ block top
       input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub")
       div.row
       textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")
-    article.col-3.h-100
+    article.col-3.h-100.pb-4
       header.h2.text-center.mt-2="Nouveau post"
       p.h5.text-center="Partagez votre nouvelle découverte " + user.u_pseudo + " !"
         div.row
@@ -76,11 +76,20 @@ block left
                       button#edit="Editer"
                     form.col-6(action="/home/0/del/article/"+article.a_id,method="post")
                       button#delete="Supprimer"
+  div(id="bottom")
 block right
-  div.row.mb-5.mt-3
-    h2.col-auto.text-center="Sub-reddit'eirb populaires"
-  each sub in subs
-    div.row
-      a.h3.text-decoration-none.text-dark.mt-2(href="sub/"+sub.title)=sub.title
-        h4="score global: " + sub.score
-  img#bottom-illustration(src="./footer_illustration.svg" alt="fin des catégories" width="1024")
+  img#menu-illustration(src="./footer_illustration.svg" alt="fin des catégories" width="800")
+  div.container.mt-3.mb-5
+    h2.text-center="Sub-reddit populaires"
+    div#sub.mb-5
+      each sub in subs
+        a.row(href="sub/"+sub.title)
+          h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title +" ("+ sub.score +")"
+  div#Navigation
+    div.container
+      h2.text-center="Navigation"
+      div#anchor
+        a.row(href="#top")
+          h3.text-decoration-none.text-dark.mt-1="haut de page"
+        a.row(href="#bottom")
+          h3.text-decoration-none.text-dark.mt-1="bas de page"

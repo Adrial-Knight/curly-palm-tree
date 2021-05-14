@@ -13,6 +13,12 @@ a{
   margin-bottom: -60px;
 }
 
+/*Invitation à publier*/
+form > article{
+  background-color: #bbdb80;
+  border-radius: 10px;
+}
+
 /*Les articles*/
 
 #left > .container > .col-10{
