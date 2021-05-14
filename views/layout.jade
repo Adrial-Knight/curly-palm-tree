@@ -12,7 +12,7 @@ html(lang="fr")
     header#navigation
       div.container
         div.row
-          div.col-3.align-self-center
+          div.col-4.align-self-center
             a.row(href="/?reset=edit")
               img#DDLC.col.col-auto(src="./../DDLC_mirror.png" alt="logo DDLC")
               h3.col-auto.mt-4.pt-3.text-dark="Accueil"
@@ -45,20 +45,22 @@ html(lang="fr")
                         Default.checked Contenu 
                   div.col-auto.justify-content-between.ms-auto
                     button#search(type="submit")="Chercher"
-          div.col.4.mt-3.align-self-center
+          div.col.3.mt-3.align-self-center
             div.row
               div.col-9
                 a#pseudo.h3.text-dark.float-end(href="/profils")=user.u_pseudo
               div.col-3
                 form.mt-2(action="/deconnexion",method="post")
                   button#deconnexion(type="deco")="Déconnexion"
-    div.container
-      div#top
+    div.container#top
+      div
         br
-        block top
+        br
+        br
+        br
+      block top
       div.row
         div.col-9#left
           block left
         div.col-3.h-100#right
           block right
-    

@@ -6,7 +6,27 @@ a{
   text-decoration: none;
 }
 
+.my-anchor{
+  padding-top: 85px;
+  position: relative;
+  top: -85px;
+  margin-bottom: -60px;
+}
+
+/*Les articles*/
+
+#left > .container > .col-10{
+  background-color: #b4bed8;
+  border-radius: 10px;
+}
+
 /*Votes*/
+
+#upped, #downed, #nulled{
+  padding: 5px 7px 5px 7px;
+  margin-right: 15px;
+  border-radius: 10px;
+}
 
 #upped{
   background-color: #3c9851;

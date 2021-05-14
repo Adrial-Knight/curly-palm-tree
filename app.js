@@ -234,11 +234,11 @@ UNION
       		JOIN VOTES
       		ON a_id = v_reference
       		WHERE a_user = ? AND v_reference = a_id AND v_kind = "article")
-    ORDER BY a_score DESC
+    ORDER BY a_id DESC
       `, [req.session.u_id, req.session.u_id, req.session.u_id])
 
   const comments_in_owned = await db.all(`
-    SELECT c_id, a_id, c_content, c_score, v_vote
+    SELECT c_id, a_id, a_date, c_content, c_score, v_vote
 		  FROM ARTICLES
 		  JOIN COMMENTS
 		  ON a_id = c_article
@@ -246,7 +246,7 @@ UNION
 		  ON v_reference = c_id
 		  WHERE c_user = ? AND a_user = ?
 UNION
-	SELECT c_id, a_id, c_content, c_score, null as v_vote
+	SELECT c_id, a_id, a_date, c_content, c_score, null as v_vote
 	  FROM ARTICLES
 		  JOIN COMMENTS
 		  ON a_id = c_article
@@ -259,7 +259,7 @@ UNION
 		  ON v_reference = c_id
 		  WHERE c_user = ? AND a_user = ?
 		  )
-    ORDER BY a_id, c_id DESC
+    ORDER BY a_id DESC, c_id DESC
       `, [req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id])
 
   db.close()
@@ -658,7 +658,7 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
 
   let path
 
-  if (req.params.kind == "comment")
+  if ( (req.params.kind == "comment") && (req.params.page == "article") )
     path = "/article/"+req.params.page_id
   else if (req.params.page == "sub")
     path = "/sub/"+req.params.page_id

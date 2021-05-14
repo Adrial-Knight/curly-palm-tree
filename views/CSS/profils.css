@@ -1,0 +1,28 @@
+.my-vertical{
+  border-right: 5px solid;
+  border-right-style: dotted;
+}
+
+/* Barre lattérale droite*/
+
+#info{
+  position: fixed;
+  float: right;
+  display: block;
+  margin-left: -3%;
+}
+
+#publish{
+  color: #3c9851;
+}
+
+#publish:hover{
+  background-color: #3c9851;
+}
+
+#info > article > div{
+  position: center;
+  border-radius: 15px;
+  padding: 5%;
+  background-color: #ae9473;
+}

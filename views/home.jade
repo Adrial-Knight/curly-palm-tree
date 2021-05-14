@@ -2,7 +2,7 @@ extend layout.jade
 block link
   include CSS/home.css
 block top
-  form.row.mt-3.mb-5(action="/home/0/new",method="post")
+  form.row.mt-4.mb-5(action="/home/0/new",method="post")
     div.col-9
       input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="title")
       div.row
