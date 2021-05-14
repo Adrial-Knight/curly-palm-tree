@@ -284,10 +284,13 @@ app.get("/article/:id", async (req, res) => {
   `,[req.params.id])
 
   var related = await db.all(`
-      SELECT a_id, a_title, a_user, a_score FROM ARTICLES
+      SELECT a_id, a_title, a_user, a_score, u_pseudo
+      FROM ARTICLES
+      JOIN USERS
+      ON a_user = u_id
       WHERE (a_id != ? AND a_sub = ?)
       ORDER BY a_score DESC
-    `)
+    `, [article.a_id, article.a_sub])
 
   const comments = await db.all(`
       SELECT c_id, c_user, c_score, c_content, v_vote, u_pseudo
