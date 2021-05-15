@@ -2,8 +2,8 @@ extend layout
 block link
   include CSS/result.css
 block top
-  h1.text-center.mt-3(id="top")=header
 block left
+  h1.text-center.mt-5(id="top")=header
   each article in articles
     div.container.mt-5.row
       a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")

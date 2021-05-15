@@ -18,7 +18,7 @@ block top
 block left
   each article in articles
     if ( (edit != null) && (edit.id == article.a_id) )
-        h2(id="editing")="Edition de votre post"
+        h2.text-center(id="editing")="Edition de votre post"
     div.container.row.mb-4
       if (article.v_vote != undefined)
         if (article.v_vote == 1)
