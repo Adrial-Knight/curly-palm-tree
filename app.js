@@ -334,9 +334,6 @@ app.get("/article/:id", async (req, res) => {
     WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
   `, [user.u_id, req.params.id, "article"])
 
-  console.log(comments);
-  console.log(user);
-
   db.close()
   const edit = req.session.edit
 
