@@ -6,7 +6,7 @@ block left
   h1.text-center.mt-5(id="top")=header
   each article in articles
     div.container.mt-5.row
-      a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+      a.col-8.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
         h4=article.u_pseudo + ", le " +article.a_date
         h3=article.a_title
         if (article.a_reaction > 1)
@@ -19,6 +19,11 @@ block left
             button#edit="Editer"
           form.col-auto(action="/home/0/del/article/"+article.a_id,method="post")
             button#delete="Supprimer"
+      a.col-1(href="/article/"+article.a_id+"/favorite/"+article.a_id)
+        if (article.favorite == null)
+          img.my-favorite(src="./../not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+        else
+          img.my-favorite(src="./../favorite.png" alt="favoris" title="Retirer des favoris")
   div(id="bottom")
 block right
   div#Navigation

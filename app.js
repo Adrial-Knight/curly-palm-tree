@@ -118,7 +118,7 @@ app.get("/home", async (req, res) => {
   `,[req.session.u_id]);
 
   const articles = await db.all(`
-      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, v_vote, u_pseudo
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, v_vote, u_pseudo, null as favorite
       FROM ARTICLES
       JOIN VOTES
       ON a_id = v_reference
@@ -126,7 +126,7 @@ app.get("/home", async (req, res) => {
       ON a_user = u_id
       WHERE v_user = ?
     UNION
-      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, NULL as v_vote, u_pseudo
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, NULL as v_vote, u_pseudo, null as favorite
       FROM ARTICLES
       JOIN USERS
       ON a_user = u_id
@@ -141,6 +141,20 @@ app.get("/home", async (req, res) => {
     ORDER BY a_score DESC
     `, [req.session.u_id, req.session.u_id])
 
+  const favorites = await db.all(`
+    SELECT f_article
+    FROM FAVORITES
+    WHERE f_user = ?
+    `, req.session.u_id)
+
+  for (var i = 0; i < articles.length; i++) {
+    for (var j = 0; j < favorites.length; j++) {
+      if(favorites[j].f_article == articles[i].a_id){
+        articles[i].favorite = 1
+        favorites.splice(j, 1)
+      }
+    }
+  }
 
   // on trie en sommant le score des articles
   const subs = await db.all(`
@@ -194,7 +208,7 @@ UNION
       `, [req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id])
 
   const reacted = await db.all(`
-    SELECT u_id, u_pseudo, a_id, a_score, a_reaction, a_link, a_title, a_sub, a_date, v_vote, v_date
+    SELECT u_id, u_pseudo, a_id, a_score, a_reaction, a_link, a_title, a_sub, a_date, v_vote, v_date, null as favorite
       FROM ARTICLES
       JOIN USERS
       ON a_user = u_id
@@ -202,7 +216,7 @@ UNION
       ON a_id = v_reference
       WHERE v_user = ? AND u_id != ?
   UNION
-    SELECT u_id, u_pseudo, a_id, a_score, a_reaction, a_link, a_title, a_sub, a_date, null as v_vote, null as v_date
+    SELECT u_id, u_pseudo, a_id, a_score, a_reaction, a_link, a_title, a_sub, a_date, null as v_vote, null as v_date, null as favorite
       FROM ARTICLES
       JOIN USERS
       ON a_user = u_id
@@ -225,13 +239,13 @@ UNION
   `, [user.u_id, user.u_id, user.u_id, user.u_id, user.u_id, user.u_id])
 
   const owned = await db.all(`
-      SELECT DISTINCT a_id, a_score, a_reaction, a_date, a_title, v_vote, a_user
+      SELECT DISTINCT a_id, a_score, a_reaction, a_date, a_title, v_vote, a_user, null as favorite
         FROM ARTICLES
         JOIN VOTES
         ON a_id = v_reference
         WHERE a_user = ? AND v_reference = a_id AND v_kind = "article"
     UNION
-    	SELECT DISTINCT a_id, a_score, a_reaction, a_date, a_title, null as v_vote, a_user
+    	SELECT DISTINCT a_id, a_score, a_reaction, a_date, a_title, null as v_vote, a_user, null as favorite
       	FROM ARTICLES
       	WHERE a_user = ? AND a_id NOT IN
       		(SELECT DISTINCT a_id
@@ -267,10 +281,80 @@ UNION
     ORDER BY a_id DESC, c_id DESC
       `, [req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id, req.session.u_id])
 
+  const favorites = await db.all(`
+    SELECT f_article
+    FROM FAVORITES
+    WHERE f_user = ?
+    `, req.session.u_id)
+
+  for (var i = 0; i < owned.length; i++) {
+    for (var j = 0; j < favorites.length; j++) {
+      if(favorites[j].f_article == owned[i].a_id){
+        owned[i].favorite = 1
+        favorites.splice(j, 1)
+      }
+    }
+  }
+
+  for (var i = 0; i < reacted.length; i++) {
+    for (var j = 0; j < favorites.length; j++) {
+      if(favorites[j].f_article == reacted[i].a_id){
+        reacted[i].favorite = 1
+        favorites.splice(j, 1)
+      }
+    }
+  }
+
   db.close()
 
   const edit = req.session.edit
   res.render("profils", {user, owned, reacted, edit, comments_in_reacted, comments_in_owned})
+})
+
+// Affiche la page des favoris
+app.get("/favoris", async (req, res) =>{
+  if(req.query.reset == "edit")
+    req.session.edit = null
+  const db = await openDb()
+
+  const user = await db.get(`
+    SELECT * FROM USERS
+    WHERE u_id = ?
+  `,[req.session.u_id])
+
+  const articles = await db.all(`
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, v_vote, u_pseudo, f_date
+      FROM ARTICLES
+      JOIN VOTES
+      ON a_id = v_reference
+      JOIN USERS
+      ON a_user = u_id
+      JOIN FAVORITES
+      ON a_id = f_article
+      WHERE v_user = ?
+    UNION
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, NULL as v_vote, u_pseudo, f_date
+      FROM ARTICLES
+      JOIN USERS
+      ON a_user = u_id
+      JOIN FAVORITES
+      ON a_id = f_article
+      WHERE a_id NOT IN
+          (SELECT a_id
+          FROM ARTICLES
+          JOIN VOTES
+          ON a_id = v_reference
+          JOIN USERS
+          ON a_user = u_id
+          JOIN FAVORITES
+          ON a_id = f_article
+          WHERE v_user = ?)
+    ORDER BY f_date DESC
+    `, [req.session.u_id, req.session.u_id])
+
+  const edit = req.session.edit
+  db.close()
+  res.render("favorites", {user, articles, edit})
 })
 
 // Affiche la page d'un article
@@ -282,12 +366,21 @@ app.get("/article/:id", async (req, res) => {
 
   const article = await db.get(`
     SELECT a_id, a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub,
-    a_content, u_pseudo
+    a_content, u_pseudo, null as favorite
     FROM ARTICLES
     JOIN USERS
     ON a_user = u_id
     WHERE a_id = ?
   `,[req.params.id])
+
+  const favorite = await db.get(`
+    SELECT f_article
+    FROM FAVORITES
+    WHERE f_user = ? AND f_article = ?
+    `, req.session.u_id, req.params.id)
+
+  if (favorite != undefined)
+    article.favorite = 1
 
   var related = await db.all(`
       SELECT a_id, a_title, a_user, a_score, u_pseudo
@@ -375,7 +468,20 @@ app.get("/sub/:name", async (req, res) => {
     ORDER BY a_score DESC
     `, [req.params.name, req.params.name, req.params.name])
 
+  const favorites = await db.all(`
+    SELECT f_article
+    FROM FAVORITES
+    WHERE f_user = ?
+    `, req.session.u_id)
 
+  for (var i = 0; i < articles.length; i++) {
+    for (var j = 0; j < favorites.length; j++) {
+      if(favorites[j].f_article == articles[i].a_id){
+        articles[i].favorite = 1
+        favorites.splice(j, 1)
+      }
+    }
+  }
 
   const sub = await db.get(`
     SELECT a_sub as title, a_date as creation
@@ -405,6 +511,38 @@ app.get("/search_user/:u_pseudo", async (req, res) => {
     `, [req.params.u_pseudo])
   const header="Recherche des posts publiés par '"+req.params.u_pseudo+"'"
   res.render("result", {user, articles, header})
+})
+
+// Modifie un favoris sans changer de page
+app.get("/:page/:p_id/favorite/:a_id", async (req, res) => {
+  const db = await openDb()
+  const favorite = await db.get(`
+    SELECT f_article
+    FROM FAVORITES
+    WHERE f_user = ? AND f_article = ?`
+  , [req.session.u_id, req.params.a_id])
+
+  if (favorite == undefined)    // on met l'article en favoris
+    await db.run(`
+    INSERT INTO FAVORITES (f_user, f_article, f_date) VALUES (?, ?, ?)
+  `, [req.session.u_id, req.params.a_id, new Date()])
+  else                         // on supprimer l'article des favoris
+    await db.run(`
+      DELETE FROM FAVORITES
+      WHERE f_user = ? AND f_article = ?
+      `, [req.session.u_id, req.params.a_id])
+
+  db.close()
+
+  if (req.params.page == "home")
+    var path = "/home"
+  else if (req.params.page == "article")
+    var path = "/article/"+req.params.p_id
+  else if (req.params.page == "sub")
+    var path = "/sub/"+req.params.p_id
+  else if (req.params.page == "profils")
+    var path = "/profils"
+  res.redirect(path)
 })
 
 // Enregistre le pseudo et le mot de passe entré
@@ -491,6 +629,8 @@ app.post("/:page/:id/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_scor
     path = "/sub/"+id
   else if (page == "profils")
     path = "/profils"
+  else if (page == "favorites")
+    path = "/favoris"
   res.redirect(path)
 })
 
@@ -631,6 +771,8 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
     path = "/sub/"+req.params.page_id
   else if (req.params.page == "profils")
     path = "/profils"
+  else if (req.params.page == "favorites")
+    path = "/favoris"
   else
     path = "/home"
 
@@ -690,6 +832,8 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
     path = "/profils"
   else if ((req.params.page == "home") || (req.params.kind == "article"))
     path = "/home"
+  if (req.params.page == "favorites")
+    path = "/favoris"
 
   res.redirect(path)
 })
@@ -709,7 +853,7 @@ app.post("/search", async (req, res) => {
   const input = req.body.search_input
   const key_words = input.split(' ')
 
-  sql_request=`SELECT a_id, a_user, a_title, a_score, a_reaction, a_date, a_link, a_sub, a_content, u_pseudo FROM ARTICLES JOIN USERS ON u_id = a_user WHERE `
+  sql_request=`SELECT a_id, a_user, a_title, a_score, a_reaction, a_date, a_link, a_sub, a_content, u_pseudo, null as favorite FROM ARTICLES JOIN USERS ON u_id = a_user WHERE `
   if (search_choice == "a_user"){
     search_choice = "u_pseudo"
   }
@@ -724,6 +868,21 @@ app.post("/search", async (req, res) => {
 
   // exécute la requête
   const articles = await db.all(sql_request)
+
+  const favorites = await db.all(`
+    SELECT f_article
+    FROM FAVORITES
+    WHERE f_user = ?
+    `, req.session.u_id)
+
+  for (var i = 0; i < articles.length; i++) {
+    for (var j = 0; j < favorites.length; j++) {
+      if(favorites[j].f_article == articles[i].a_id){
+        articles[i].favorite = 1
+        favorites.splice(j, 1)
+      }
+    }
+  }
 
   switch (search_choice) {
     case "a_title":

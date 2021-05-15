@@ -26,9 +26,14 @@ block left
           form(action="/article/"+article.a_id+"/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
             button#down="down"
       if ( (edit != null) && (edit.kind == "article") )
-        h1.col-10.align-self-center.text-center="Modification de "+article.a_title
+        h1.col-9.align-self-center.text-center="Modification de "+article.a_title
       else
-        h1.col-10.align-self-center.text-center=article.a_title
+        h1.col-9.align-self-center.text-center=article.a_title
+      a.col-1(href="/article/"+article.a_id+"/favorite/"+article.a_id)
+        if (article.favorite == null)
+          img.my-favorite(src="./../not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+        else
+          img.my-favorite(src="./../favorite.png" alt="favoris" title="Retirer des favoris")
       div.col-1.mb-3
     if ( ((user.u_id == article.a_user) && (edit == null)) || ((edit != null) && (edit.kind != "article")) )
       div.row.mb-5

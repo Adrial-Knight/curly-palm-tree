@@ -2,7 +2,7 @@ extend layout
 block link
   include CSS/profils.css
 block left
-  h1.my-anchor.mt-4.text-center(id="top")="Vos posts les plus récents"
+  h1.my-anchor.mt-5.text-center(id="top")="Vos posts les plus récents"
   div.row
   -var com_index_owned = 0
   each article in owned
@@ -55,18 +55,23 @@ block left
             div.row
               a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
                   h4=user.u_pseudo + ", le " +article.a_date
-              div.col-3
+                  h3=article.a_title
+                  if (article.a_reaction > 1)
+                    h5=article.a_reaction + " commentaires"
+                  else
+                    h5=article.a_reaction + " commentaire"
+              div.col-2
                 div.row
                   if (edit == null)
                     form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
                       button#edit="Editer"
                     form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
                       button#delete="Supprimer"
-              h3=article.a_title
-                if (article.a_reaction > 1)
-                  h5=article.a_reaction + " commentaires"
-                else
-                  h5=article.a_reaction + " commentaire"
+                a(href="/profils/0/favorite/"+article.a_id)
+                  if (article.favorite == null)
+                    img.my-favorite(src="./not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+                  else
+                    img.my-favorite(src="./favorite.png" alt="favoris" title="Retirer des favoris")
       - while ((comments_in_owned[com_index_owned] != undefined) && (article.a_id == comments_in_owned[com_index_owned].a_id))
           if ( (com_index_owned == 0) || (comments_in_owned[com_index_owned-1].a_id != article.a_id) )
             div.row
@@ -153,39 +158,18 @@ block left
             button#down="down"
       div.col-10
         div.row
-          if ( (edit != null) && (edit.id == article.a_id) && (edit.kind == "article"))
-            form.row(action="/profils/0/edite/article/"+article.a_id+"/saved",method="post")
-              div.col-10
-                input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
-                div.row
-                input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link", value=edit.link)
-                input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Sub-reddit",name="sub", value=edit.sub)
-                div.row
-                textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
-              div.col-2
-                button#save.col-12.mb-4.mt-4="Sauvegarder"
-                div.row
-                form(action="foo")
-                form(action="/profils/0/edite/article/"+article.a_id+"/cancel",method="post")
-                  button#cancel.col-12.mb-2="Annuler"
-                div.row
-                form(action="/profils/0/edite/article/"+article.a_id+"/del",method="post")
-                  button#delete.col-12="Supprimer"
-          else
-            a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
-              h4=article.u_pseudo + ", le " +article.a_date
-              h3=article.a_title
-              if (article.a_reaction > 1)
-                h5=article.a_reaction + " commentaires"
-              else
-                h5=article.a_reaction + " commentaire"
-            div.col-3
-              div.row
-              if ( (edit == null) && (article.a_user == user.u_id) )
-                  form.col-6(action="/profils/0/edite/article/"+article.a_id+"/processing",method="post")
-                    button#edit="Editer"
-                  form.col-6(action="/profils/0/del/article/"+article.a_id,method="post")
-                    button#delete="Supprimer"                      
+          a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+            h4=article.u_pseudo + ", le " +article.a_date
+            h3=article.a_title
+            if (article.a_reaction > 1)
+              h5=article.a_reaction + " commentaires"
+            else
+              h5=article.a_reaction + " commentaire"
+          a.col-2(href="/profils/0/favorite/"+article.a_id)
+            if (article.favorite == null)
+              img.my-favorite(src="./not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+            else
+              img.my-favorite(src="./favorite.png" alt="favoris" title="Retirer des favoris")
       - while ((comments_in_reacted[com_index_reacted] != undefined) && (article.a_id == comments_in_reacted[com_index_reacted].a_id))
         if ( (com_index_reacted == 0) || (comments_in_reacted[com_index_reacted-1].a_id != article.a_id) )
           div.row
@@ -245,7 +229,7 @@ block left
         - com_index_reacted = com_index_reacted + 1
       div(id="bottom")
 block right
-  div#info.mt-4
+  div#info.mt-5
     article
       header.h1.text-center="Vos informations"
       div
@@ -253,6 +237,13 @@ block right
         h4="Mail: "+user.u_mail
         h4.mt-4="Nombre de contribution: "+(owned.length + comments_in_reacted.length)
         h4="Dernière connexion le "+user.u_connexion
+    article
+      header.h1.text-center.mt-5="Vos favoris"
+      div
+        a.row.mb-2(href="/favoris?reset=edit")
+          - for( var i = 0; i < 5; ++i)
+            img.my-favorite(src="./favorite.png" alt="favoris" title="Vos favoris")
+            img.my-favorite(src="./not_favorite.png" alt="favoris" title="Vos favoris")
     article
       header.text-center.h1.mt-5="Navigation"
       div

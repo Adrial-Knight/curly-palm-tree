@@ -78,6 +78,11 @@ block left
                       button#edit="Editer"
                     form.col-6(action="/home/0/del/article/"+article.a_id,method="post")
                       button#delete="Supprimer"
+              a(href="/home/0/favorite/"+article.a_id)
+                if (article.favorite == null)
+                  img.my-favorite(src="./not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+                else
+                  img.my-favorite(src="./favorite.png" alt="favoris" title="Retirer des favoris")
   div(id="bottom")
 block right
   img#menu-illustration(src="./footer_illustration.svg" alt="fin des catégories" width="800")

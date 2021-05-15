@@ -19,6 +19,12 @@ form > article{
   border-radius: 10px;
 }
 
+.my-favorite{
+  float: right;
+  width: 35px;
+  margin-top: 7px;
+}
+
 /*Les articles*/
 
 #left > .container > .col-10{

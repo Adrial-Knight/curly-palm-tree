@@ -60,15 +60,20 @@ block left
                 h5=article.a_reaction + " commentaires"
               else
                 h5=article.a_reaction + " commentaire"
-            div.col-3.mt-2
+            div.col-2
               if (article.a_user == user.u_id)
-                div.row
+                div.row.mt-2
                   if (edit == null)
-                    form.col-auto(action="/sub/"+sub.title+"/edite/article/"+article.a_id+"/processing",method="post")
+                    form.col-6(action="/sub/"+sub.title+"/edite/article/"+article.a_id+"/processing",method="post")
                       button#edit="Editer"
-                    form.col-auto(action="/sub/"+sub.title+"/del/article/"+article.a_id,method="post")
+                    form.col-6(action="/sub/"+sub.title+"/del/article/"+article.a_id,method="post")
                       if (articles.length != 1)
                         button#delete="Supprimer"
+              a(href="/sub/"+sub.title+"/favorite/"+article.a_id)
+                if (article.favorite == null)
+                  img.my-favorite(src="./../not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+                else
+                  img.my-favorite(src="./../favorite.png" alt="favoris" title="Retirer des favoris")
   div(id="bottom")
 block right
   div#Navigation
