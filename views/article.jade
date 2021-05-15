@@ -73,6 +73,8 @@ block left
         button#publish.mb-2="Valider"
     each comment in comments
       div.container.row.mt-4
+        if ( (edit != null) && (edit.kind == "comment") && (comment.c_id == edit.id) )
+          h2.text-center(id="editing")="Edition de votre commentaire"
         if (comment.v_vote != undefined)
           if (comment.v_vote == 1)
             div#upped.col-1.align-self-center.text-center
@@ -127,14 +129,17 @@ block right
         h2.text-dark.text-center="Aucun autre post dans la sub reddit'eirb "+article.a_sub
       else
         h2.text-dark.text-center="Aussi dans la sub-reddit "+article.a_sub
-    div
-      each article in related
-        a.row(href="/article/"+article.a_id+"?reset=edit")
-          h4.col-auto.text-decoration-none.text-dark.text-center=article.a_title+" de "+article.u_pseudo+" ("+article.a_score+")"
+        div
+          each article in related
+            a.row(href="/article/"+article.a_id+"?reset=edit")
+              h4.col-auto.text-decoration-none.text-dark.text-center=article.a_title+" de "+article.u_pseudo+" ("+article.a_score+")"
   div.container.mt-5
     h2.text-center="Navigation"
     div
       a.row(href="#top")
         h4.col-auto.text-decoration-none.text-dark.text-center="Début de l'article"
+      if (edit != null)
+        a.row(href="#editing")
+          h4.text-decoration-none.text-dark.mt-1="Edition en cours"
       a.row(href="#middle")
         h4.col-auto.text-decoration-none.text-dark.text-center="Les commentaires"
