@@ -338,6 +338,8 @@ app.get("/article/:id", async (req, res) => {
 
 // Affiche la page d'une sous-catégorie
 app.get("/sub/:name", async (req, res) => {
+  if(req.query.reset == "edit")
+    req.session.edit = null
   const db = await openDb()
 
   const user = await db.get(`

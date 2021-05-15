@@ -17,6 +17,8 @@ block top
         button#publish.mt-4.btn-lg.btn-block.text-center="Publier"
 block left
   each article in articles
+    if ( (edit != null) && (edit.id == article.a_id) )
+        h2(id="editing")="Edition de votre post"
     div.container.row.mb-4
       if (article.v_vote != undefined)
         if (article.v_vote == 1)
@@ -83,13 +85,20 @@ block right
     h2.text-center="Sub-reddit populaires"
     div#sub.mb-5
       each sub in subs
-        a.row(href="sub/"+sub.title)
-          h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title +" ("+ sub.score +")"
+        if (edit != null)
+          a.row(href="sub/"+sub.title+"?reset=edit")
+            h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title +" ("+ sub.score +")"
+        else
+          a.row(href="sub/"+sub.title)
+            h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title +" ("+ sub.score +")"
   div#Navigation
     div.container
       h2.text-center="Navigation"
       div#anchor
         a.row(href="#top")
-          h3.text-decoration-none.text-dark.mt-1="haut de page"
+          h3.text-decoration-none.text-dark.mt-1="Haut de page"
+        if (edit != null)
+          a.row(href="#editing")
+            h3.text-decoration-none.text-dark.mt-1="Edition en cours"
         a.row(href="#bottom")
-          h3.text-decoration-none.text-dark.mt-1="bas de page"
+          h3.text-decoration-none.text-dark.mt-1="Bas de page"
