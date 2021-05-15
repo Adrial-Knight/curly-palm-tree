@@ -299,29 +299,29 @@ app.get("/article/:id", async (req, res) => {
       LIMIT 10
     `, [article.a_id, article.a_sub])
 
-  const comments = await db.all(`
-      SELECT c_id, c_user, c_score, c_content, v_vote, u_pseudo
-      FROM COMMENTS
-      JOIN VOTES
-      ON c_id = v_reference
-      JOIN USERS
-      ON c_user = u_id
-      WHERE c_article = ? AND v_kind = "comment"
-    UNION
-      SELECT c_id, c_user, c_score, c_content, null as v_vote, u_pseudo
-      FROM COMMENTS
-      JOIN USERS
-      ON c_user = u_id
-      WHERE c_article = ? AND c_id NOT IN
-          (SELECT c_id
+    const comments = await db.all(`
+          SELECT c_id, c_user, c_score, c_content, v_vote, u_pseudo
           FROM COMMENTS
           JOIN VOTES
           ON c_id = v_reference
           JOIN USERS
           ON c_user = u_id
-          WHERE c_article = ? AND v_kind = "comment")
-    ORDER BY c_score DESC
-    `, [req.params.id, req.params.id, req.params.id])
+          WHERE c_article = ? AND v_kind = "comment" AND c_user = ?
+        UNION
+          SELECT c_id, c_user, c_score, c_content, null as v_vote, u_pseudo
+          FROM COMMENTS
+          JOIN USERS
+          ON c_user = u_id
+          WHERE c_article = ? AND c_id NOT IN
+              (SELECT c_id
+              FROM COMMENTS
+              JOIN VOTES
+              ON c_id = v_reference
+              JOIN USERS
+              ON c_user = u_id
+              WHERE c_article = ? AND v_kind = "comment" AND c_user = ?)
+        ORDER BY c_score DESC
+        `, [req.params.id, req.session.u_id, req.params.id, req.params.id, req.session.u_id])
 
   const user = await db.get(`
     SELECT * FROM USERS
@@ -333,6 +333,9 @@ app.get("/article/:id", async (req, res) => {
     SELECT * FROM VOTES
     WHERE (v_user = ? AND v_reference = ? AND v_kind = ?)
   `, [user.u_id, req.params.id, "article"])
+
+  console.log(comments);
+  console.log(user);
 
   db.close()
   const edit = req.session.edit
