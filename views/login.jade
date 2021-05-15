@@ -3,10 +3,13 @@ html(lang="fr")
   head
     html(lang="fr")
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+    style
+      include CSS/general.css
+      include CSS/login.css
     title= "Login"
   body
     div.container
-      h1.text-center.mt-3="Bienvenue sur Reddit'eirb !"
+      h1.text-center.mt-5="Bienvenue sur Reddit'eirb !"
         row.justify-content-center
           h2.mb-3.mt-4=title
           form(action=action,autocomplete="off",method="post")
@@ -28,16 +31,16 @@ html(lang="fr")
             if (password_error != 0)
               h5.text-danger=password_error
             div.row
-            button.btn.btn-outline-dark.btn-lg(type="submit")="Valider"
+            button#Submit(type="submit")="Valider"
           div.row.mt-5
             div.col-4
             if (action == "/login")
               h5.col-2.mt-3="Pas de compte ?"
               div.col-2
                 form(action="/signup",autocomplete="off",method="post")
-                  button.btn.btn-outline-primary.btn-lg(type="submit")="Inscrivez-vous !"
+                  button#Inscription(type="submit")="Inscrivez-vous !"
             else
               h5.col-2.mt-3="Déjà inscrits ?"
               div.col-2
                 form(action="/login",autocomplete="off",method="post")
-                  button.btn.btn-outline-primary.btn-lg(type="submit")="Connexion !"
+                  button#Connexion(type="submit")="Connexion !"
