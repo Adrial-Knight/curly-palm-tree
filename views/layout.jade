@@ -54,7 +54,10 @@ html(lang="fr")
           div.col.3.mt-3.align-self-center
             div.row
               div.col-9
-                a#pseudo.h3.text-dark.float-end(href="/profils")=user.u_pseudo
+                if (edit != null)
+                  a#pseudo.h3.text-dark.float-end(href="/profils?reset=edit")=user.u_pseudo
+                else
+                  a#pseudo.h3.text-dark.float-end(href="/profils")=user.u_pseudo
               div.col-3
                 form.mt-2(action="/deconnexion",method="post")
                   button#deconnexion(type="deco")="Déconnexion"

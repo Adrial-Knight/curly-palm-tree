@@ -108,6 +108,8 @@ app.get("/", async (req, res)=>{
 
 // Affiche l'accueil
 app.get("/home", async (req, res) => {
+  if(req.query.reset == "edit")
+    req.session.edit = null
   const db = await openDb()
 
   const user = await db.get(`
@@ -157,6 +159,8 @@ app.get("/home", async (req, res) => {
 
 // Affiche la page de profils
 app.get("/profils", async (req, res) =>{
+  if(req.query.reset == "edit")
+    req.session.edit = null
   const db = await openDb()
 
   const user = await db.get(`
@@ -389,6 +393,7 @@ app.get("/sub/:name", async (req, res) => {
 
 // Recherche les articles d'un utilisateur
 app.get("/search_user/:u_pseudo", async (req, res) => {
+  req.session.edit = null
   const db = await openDb()
   const user = await db.get(`SELECT * FROM USERS WHERE u_id = ?`, [req.session.u_id])
   const articles = await db.all(`
