@@ -4,7 +4,7 @@ clear
 
 if [ "$1" = "db" ]; then
 	echo "Réinitialise la base de donnée"
-	node init.js
+	node install.js
 
 elif [ "$1" = "ss" ]; then
 	if [ -e sessions ]; then
