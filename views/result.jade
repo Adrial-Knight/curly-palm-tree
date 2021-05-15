@@ -1,22 +1,33 @@
 extend layout
+block link
+  include CSS/result.css
 block top
-  h1.text-center.mt-3=header
+  h1.text-center.mt-3(id="top")=header
+block left
   each article in articles
-    div.row.mt-5
-      div.col-8.offset-1
-        a.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
-          h4=article.u_pseudo + ", le " +article.a_date
-          h3=article.a_title
-          if (article.a_reaction > 1)
-            h5=article.a_reaction + " commentaires"
-          else
-            h5=article.a_reaction + " commentaire"
-      div.col-1
+    div.container.mt-5.row
+      a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+        h4=article.u_pseudo + ", le " +article.a_date
+        h3=article.a_title
+        if (article.a_reaction > 1)
+          h5=article.a_reaction + " commentaires"
+        else
+          h5=article.a_reaction + " commentaire"
+      div.col-3.row.mt-2
         if (article.a_user == user.u_id)
-          div.row
-            form.col-6(action="/article/"+article.a_id+"/edite/article/"+article.a_id+"/processing",method="post")
-              button="Editer"
-            form.col-6(action="/home/0/del/article/"+article.a_id,method="post")
-              button="Supprimer"
-  div.row.mt-5
-    a.h2.col-auto.offset-5.font-weight-bold.text-decoration-none.text-dark(href="/?reset=edit")="Retour à l'accueil"
+          form.col-auto(action="/article/"+article.a_id+"/edite/article/"+article.a_id+"/processing",method="post")
+            button#edit="Editer"
+          form.col-auto(action="/home/0/del/article/"+article.a_id,method="post")
+            button#delete="Supprimer"
+  div(id="bottom")
+block right
+  div#Navigation
+    div.container
+      h2.text-center="Navigation"
+      div#anchor
+        a.row(href="#top")
+          h3.text-decoration-none.text-dark.mt-1="Haut de page"
+        a.row(href="#bottom")
+          h3.text-decoration-none.text-dark.mt-1="Bas de page"
+
+  
