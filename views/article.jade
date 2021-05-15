@@ -136,10 +136,14 @@ block right
   div.container.mt-5
     h2.text-center="Navigation"
     div
-      a.row(href="#top")
-        h4.col-auto.text-decoration-none.text-dark.text-center="Début de l'article"
-      if (edit != null)
+      if ( (edit != null) && (edit.kind == "article") )
+        a.row(href="#top")
+          h4.col-auto.text-decoration-none.text-dark.text-center="Modification du post"
+      else
+        a.row(href="#top")
+          h4.col-auto.text-decoration-none.text-dark.text-center="Début du post"
+      if ( (edit != null) && (edit.kind == "comment") )
         a.row(href="#editing")
-          h4.text-decoration-none.text-dark.mt-1="Edition en cours"
+          h4.text-decoration-none.text-dark="Commentaire en édition"
       a.row(href="#middle")
         h4.col-auto.text-decoration-none.text-dark.text-center="Les commentaires"
