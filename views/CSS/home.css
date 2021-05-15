@@ -13,7 +13,7 @@
   width: 100%;
 }
 
-/*Les sub-reddits*/
+/*Aide à la navigation sur la page*/
 
 #Navigation {
   display: block;
@@ -29,6 +29,8 @@
    margin: 7px;
    border-radius: 10px;
  }
+
+ /*Les sub-reddits*/
 
 #sub{
   background-color: #ae9473;
