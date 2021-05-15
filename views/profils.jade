@@ -6,6 +6,8 @@ block left
   div.row
   -var com_index_owned = 0
   each article in owned
+    if ( (edit != null) && (edit.id == article.a_id) && (edit.kind == "article"))
+        h2.text-center(id="editing")="Edition de votre post"
     div.container.row.mb-5
       if (article.v_vote != undefined)
         if (article.v_vote == 1)
@@ -31,7 +33,7 @@ block left
             button#down="down"
       div.col-10.pt-2
         div.row
-          if ( (edit != null) && (edit.id == article.a_id) )
+          if ( (edit != null) && (edit.id == article.a_id) && (edit.kind == "article"))
             form.row(action="/profils/0/edite/article/"+article.a_id+"/saved",method="post")
               div.col-10
                 input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
@@ -106,6 +108,7 @@ block left
                       form.col-6(action="/profils/"+article.a_id+"/del/comment/"+comments_in_owned[com_index_owned].c_id,method="post")
                         button#delete.mb-2="Supprimer"
                 else if ( (edit.kind == "comment") && (comments_in_owned[com_index_owned].c_id == edit.id) )
+                  h2.text-center(id="editing")="Edition de votre commentaire"
                   form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_owned[com_index_owned].c_id+"/saved",method="post")
                     textarea.col-12(type="text", rows="7", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
                     nav.nav.nav-pills.fs-7.lh-1.justify-content-end
@@ -150,7 +153,7 @@ block left
             button#down="down"
       div.col-10
         div.row
-          if ( (edit != null) && (edit.id == article.a_id) )
+          if ( (edit != null) && (edit.id == article.a_id) && (edit.kind == "article"))
             form.row(action="/profils/0/edite/article/"+article.a_id+"/saved",method="post")
               div.col-10
                 input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
@@ -225,6 +228,7 @@ block left
                     form.col-6(action="/profils/"+article.a_id+"/del/comment/"+comments_in_reacted[com_index_reacted].c_id,method="post")
                       button#delete.mb-2="Supprimer"
               else if ( (edit.kind == "comment") && (comments_in_reacted[com_index_reacted].c_id == edit.id) )
+                h2.text-center(id="editing")="Edition de votre commentaire"
                 form(action="/profils/"+article.a_id+"/edite/comment/"+comments_in_reacted[com_index_reacted].c_id+"/saved",method="post")
                   textarea.col-12(type="text", rows="7", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
                   nav.nav.nav-pills.fs-7.lh-1.justify-content-end
@@ -254,6 +258,9 @@ block right
       div
         a.row(href="#top")
           h4.col-auto.text-dark="Vos posts les plus récents"
+        if (edit != null)
+          a.row(href="#editing")
+            h4.text-decoration-none.text-dark="Edition en cours"
         a.row(href="#middle")
           h4.col-auto.text-dark="Les autres posts auxquels vous avez réagi"
         a.row(href="#bottom")
