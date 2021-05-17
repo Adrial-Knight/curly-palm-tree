@@ -117,53 +117,73 @@ app.get("/home", async (req, res) => {
     WHERE u_id = ?
   `,[req.session.u_id]);
 
-  const articles = await db.all(`
-      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, v_vote, u_pseudo, null as favorite
-      FROM ARTICLES
-      JOIN VOTES
-      ON a_id = v_reference
-      JOIN USERS
-      ON a_user = u_id
-      WHERE v_user = ?
-    UNION
-      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, NULL as v_vote, u_pseudo, null as favorite
-      FROM ARTICLES
-      JOIN USERS
-      ON a_user = u_id
-      WHERE a_id NOT IN
-          (SELECT a_id
-          FROM ARTICLES
-          JOIN VOTES
-          ON a_id = v_reference
-          JOIN USERS
-          ON a_user = u_id
-          WHERE v_user = ?)
-    ORDER BY a_score DESC
-    `, [req.session.u_id, req.session.u_id])
+  const votes = await db.all(`SELECT * FROM VOTES WHERE v_user = ` + req.session.u_id)
 
-  const favorites = await db.all(`
-    SELECT f_article
-    FROM FAVORITES
-    WHERE f_user = ?
-    `, req.session.u_id)
+  const favorites = await db.all(`SELECT f_article FROM FAVORITES WHERE f_user = ?`, req.session.u_id)
 
-  for (var i = 0; i < articles.length; i++) {
-    for (var j = 0; j < favorites.length; j++) {
-      if(favorites[j].f_article == articles[i].a_id){
-        articles[i].favorite = 1
-        favorites.splice(j, 1)
-      }
+  var interactions = await db.all(`SELECT * FROM INTERACTIONS`)
+
+  const current = new Date()
+
+  // Mets à jour la table des intéractions en enlevant les actions de plus de 24h
+  var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+
+  for (var i = 0; i < interactions.length; i++) {
+    if((current - interactions[i].i_date)/(1000*60*60*24) > 1){
+      await db.run(`DELETE FROM INTERACTIONS WHERE i_date = `+interactions[i].i_date)
     }
   }
+  interactions = await db.all(`SELECT i_article, COUNT(*) as a_interaction FROM INTERACTIONS GROUP BY i_article ORDER BY a_interaction DESC`)
 
-  // on trie en sommant le score des articles
+  const articles = new Array()
+  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+  var article
+  var vote
+  var favorite
+
+  for (var i = 0; i < interactions.length; i++) {
+    article = await db.get(`
+      SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, null as v_vote, u_pseudo, null as favorite, null as a_interaction
+      FROM ARTICLES
+      JOIN USERS
+      ON a_user = u_id
+      WHERE a_id = ?
+    `, [interactions[i].i_article])
+
+    vote = await db.get(`
+      SELECT v_vote
+      FROM VOTES
+      WHERE v_user = ? AND v_reference = ? AND v_kind = "article"
+      `, [req.session.u_id, interactions[i].i_article])
+
+    if (vote != undefined){
+      article.v_vote = vote.v_vote
+    }
+
+    favorite = await db.get(`
+      SELECT f_article
+      FROM FAVORITES
+      WHERE f_user = ? AND f_article = ?
+      `, [req.session.u_id, interactions[i].i_article])
+
+    if (favorite != undefined){
+      article.favorite = 1
+    }
+
+    article.a_interaction = interactions[i].a_interaction
+    article.a_date = new Date(article.a_date).toLocaleDateString("fr-FR", date_option)
+    articles.push(article)
+  }
+
+  // Les sub où l'utilisateur est engagé et dans lesquels il y a eu de l'activité durant les 24 dernières heures
   const subs = await db.all(`
-    SELECT a_sub as title, SUM(a_score) as score
+    SELECT DISTINCT a_sub as title
     FROM ARTICLES
-    GROUP BY a_sub
-    ORDER BY SUM(a_score) DESC
+    JOIN INTERACTIONS
+    ON i_article = a_id
+    WHERE i_user = ?
     LIMIT 5
-    `)
+    `, [req.session.u_id])
 
   db.close()
 
@@ -287,6 +307,9 @@ UNION
     WHERE f_user = ?
     `, req.session.u_id)
 
+
+  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+
   for (var i = 0; i < owned.length; i++) {
     for (var j = 0; j < favorites.length; j++) {
       if(favorites[j].f_article == owned[i].a_id){
@@ -294,6 +317,7 @@ UNION
         favorites.splice(j, 1)
       }
     }
+    owned[i].a_date = new Date(owned[i].a_date).toLocaleDateString("fr-FR", date_option)
   }
 
   for (var i = 0; i < reacted.length; i++) {
@@ -303,6 +327,7 @@ UNION
         favorites.splice(j, 1)
       }
     }
+    reacted[i].a_date = new Date(reacted[i].a_date).toLocaleDateString("fr-FR", date_option)
   }
 
   db.close()
@@ -331,7 +356,7 @@ app.get("/favoris", async (req, res) =>{
       ON a_user = u_id
       JOIN FAVORITES
       ON a_id = f_article
-      WHERE v_user = ?
+      WHERE f_user = ?
     UNION
       SELECT a_id, a_user, a_score, a_reaction, a_date, a_title, NULL as v_vote, u_pseudo, f_date
       FROM ARTICLES
@@ -348,9 +373,9 @@ app.get("/favoris", async (req, res) =>{
           ON a_user = u_id
           JOIN FAVORITES
           ON a_id = f_article
-          WHERE v_user = ?)
+          WHERE f_user = ?) AND f_user = ?
     ORDER BY f_date DESC
-    `, [req.session.u_id, req.session.u_id])
+    `, [req.session.u_id, req.session.u_id, req.session.u_id])
 
   const edit = req.session.edit
   db.close()
@@ -364,7 +389,7 @@ app.get("/article/:id", async (req, res) => {
 
   const db = await openDb()
 
-  const article = await db.get(`
+  var article = await db.get(`
     SELECT a_id, a_user, a_score, a_reaction, a_date, a_link, a_title, a_sub,
     a_content, u_pseudo, null as favorite
     FROM ARTICLES
@@ -372,6 +397,9 @@ app.get("/article/:id", async (req, res) => {
     ON a_user = u_id
     WHERE a_id = ?
   `,[req.params.id])
+
+  var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+  article.a_date = new Date(article.a_date).toLocaleDateString("fr-FR", options)
 
   const favorite = await db.get(`
     SELECT f_article
@@ -483,12 +511,15 @@ app.get("/sub/:name", async (req, res) => {
     }
   }
 
-  const sub = await db.get(`
-    SELECT a_sub as title, a_date as creation
+  var sub = await db.get(`
+    SELECT a_sub as title, a_date as last
     FROM ARTICLES
     WHERE a_sub = ?
     ORDER BY a_id DESC
   `,[req.params.name])
+
+  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+  sub.last = new Date(sub.last).toLocaleDateString("fr-FR", date_option)
 
   db.close()
 
@@ -617,6 +648,15 @@ app.post("/:page/:id/vote/:change/:v_user/:v_reference/:v_kind/:v_vote/:new_scor
   `,[new_score, v_reference])
   }
 
+  // Met à jour les intéractions
+  if (v_kind == "article"){
+    if(v_vote == 1){
+      await db.run(`INSERT INTO INTERACTIONS (i_article, i_user, i_ref, i_date) VALUES (?, ?, ?, ?)`, [v_reference, user, "vote", new Date()])
+    }
+    else if (change == "cancel"){
+      await db.run(`DELETE FROM INTERACTIONS WHERE i_article = ? AND i_ref = "vote" AND i_user = ?`, [v_reference, user])
+    }
+  }
 
   db.close()
 
@@ -644,8 +684,6 @@ app.post("/:page/:id/new", async (req, res) => {
   const id = req.params.id
 
   var date = new Date();
-  var options = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
-  date = date.toLocaleDateString("fr-FR", options)
 
   const db = await openDb()
 
@@ -655,7 +693,7 @@ app.post("/:page/:id/new", async (req, res) => {
   `,[req.session.u_id, date, link, title, sub, content])
   }
   else{ // l'utilisateur écrit un nouveau commentaire
-    await db.run(`
+    const comment = await db.run(`
     INSERT INTO COMMENTS (c_article, c_user, c_content, c_score) VALUES (?, ?, ?, 0)
   `,[id, req.session.u_id, content])
 
@@ -664,6 +702,9 @@ app.post("/:page/:id/new", async (req, res) => {
     SET a_reaction = a_reaction + 1
     WHERE a_id = ?
   `, [id])
+
+  await db.run(`INSERT INTO INTERACTIONS (i_article, i_user, i_ref, i_date) VALUES (?, ?, ?, ?)`, [id, req.session.u_id, comment.lastID,new Date()])
+
   }
 
   let path
@@ -705,7 +746,7 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
 
       req.session.edit = null
     }
-    else if (req.params.status == "del"){ // on supprime l'article et les commentaires associés
+    else if (req.params.status == "del"){ // on supprime l'article, les commentaires associés et les intéractions
       await db.run(`
         DELETE FROM ARTICLES
         WHERE a_id = ?
@@ -715,6 +756,8 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
         DELETE FROM COMMENTS
         WHERE c_article = ?
       `,[req.session.edit.id])
+
+      await db.run(`DELETE FROM INTERACTIONS WHERE i_article = ?`, [req.params.target_id])
 
       req.session.edit = null
     }
@@ -729,7 +772,7 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
       `, [req.params.target_id])
 
       req.session.edit = {
-        kind: req.params.kind, // est-ce utile ?
+        kind: req.params.kind,
         id: req.params.target_id,
         article: comment.c_article,
         owner: comment.c_user,
@@ -750,6 +793,8 @@ app.post("/:page/:page_id/edite/:kind/:target_id/:status", async (req, res) => {
         DELETE FROM COMMENTS
         WHERE c_id = ?
       `,[req.session.edit.id])
+
+      await db.run(`DELETE FROM INTERACTIONS WHERE i_ref = `+ req.session.edit.id)
 
       req.session.edit = null
     }
@@ -802,6 +847,15 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
       DELETE FROM COMMENTS
       WHERE c_article = ?
     `,[req.params.target_id])
+
+    // Supprime l'article des favoris
+    await db.run(`
+      DELETE FROM FAVORITES
+      WHERE f_article = ?
+    `,[req.params.target_id])
+
+    // Supprime les intéractions de l'article
+    await db.run(`DELETE FROM INTERACTIONS WHERE i_article = ?`, [req.params.target_id])
   }
   else { // Supprime un seul commentaire
     await db.run(`
@@ -814,6 +868,8 @@ app.post("/:page/:page_id/del/:kind/:target_id", async (req, res) => {
       SET a_reaction = a_reaction - 1
       WHERE a_id = ?
     `, [req.params.page_id])
+
+    await db.run(`DELETE FROM INTERACTIONS WHERE i_ref = ` + req.params.target_id)
     }
 
   // Supprime la référence cible de la table VOTES
@@ -906,8 +962,7 @@ app.post("/search", async (req, res) => {
     header="La r"+header.slice(1)+" n'a rien donné..."
 
   res.render("result", {articles, user, header})
-}
-);
+})
 
 // Enregistre la date et l'heure, et se deconnecte
 app.post("/deconnexion", async (req, res) => {

@@ -3,7 +3,7 @@ block link
   include CSS/sub.css
 block top
   h1.text-center.mt-5(id="top")=sub.title
-  h3.text-center.mb-5="Dernier post le "+sub.creation
+  h3.text-center.mb-5="Dernier post le "+sub.last
 block left
   each article in articles
     if ( (edit != null) && (edit.id == article.a_id) )
