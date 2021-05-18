@@ -66,7 +66,10 @@ block left
           else
             a.col-9.text-decoration-none.text-dark.mt-1(href="/article/"+article.a_id+"?reset=edit")
               h4=article.u_pseudo + ", le " +article.a_date
-              h3=article.a_title + " (" + article.a_interaction + ")"
+              if (article.a_interaction == 1)
+                h3=article.a_title + " (" + article.a_interaction + " new)"
+              else
+                h3=article.a_title + " (" + article.a_interaction + " news)"
               if (article.a_reaction > 1)
                 h5=article.a_reaction + " commentaires"
               else
@@ -88,15 +91,21 @@ block left
 block right
   img#menu-illustration(src="./footer_illustration.svg" alt="fin des catégories" width="800")
   div.container.mt-3.mb-5
-    h2.text-center="Vos Sub-reddit d'intérêt"
+    h2.text-center="Nouveautés sur vos Sub-reddit d'intérêt"
     div#sub.mb-5
       each sub in subs
         if (edit != null)
           a.row(href="sub/"+sub.title+"?reset=edit")
-            h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title
+            if (sub.score == 1)
+              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " new)"
+            else
+              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " news)"
         else
           a.row(href="sub/"+sub.title)
-            h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title
+            if (sub.score == 1)
+              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " new)"
+            else
+              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " news)"
   div#Navigation
     div.container
       h2.text-center="Navigation"

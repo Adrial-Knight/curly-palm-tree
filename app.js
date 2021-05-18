@@ -176,14 +176,31 @@ app.get("/home", async (req, res) => {
   }
 
   // Les sub où l'utilisateur est engagé et dans lesquels il y a eu de l'activité durant les 24 dernières heures
-  const subs = await db.all(`
-    SELECT DISTINCT a_sub as title
-    FROM ARTICLES
-    JOIN INTERACTIONS
+
+  const interested_sub = await db.all(`
+    SELECT a_sub, COUNT(i_article) as user_score
+    FROM INTERACTIONS
+    JOIN ARTICLES
     ON i_article = a_id
     WHERE i_user = ?
-    LIMIT 5
+    GROUP BY a_sub
+    ORDER BY user_score DESC
     `, [req.session.u_id])
+
+  var subs = new Array()
+  var sub
+  for (var i = 0; i < interested_sub.length; i++) {
+    sub = await db.get(`
+      SELECT a_sub as title, COUNT(i_article) as score
+      FROM INTERACTIONS
+      JOIN ARTICLES
+      ON i_article = a_id
+      WHERE a_sub = ?
+      `, [interested_sub[i].a_sub])
+    sub.score = sub.score - interested_sub[i].user_score
+    if (sub.score > 0)
+      subs.push(sub)
+  }
 
   db.close()
 
@@ -502,6 +519,8 @@ app.get("/sub/:name", async (req, res) => {
     WHERE f_user = ?
     `, req.session.u_id)
 
+  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"}
+
   for (var i = 0; i < articles.length; i++) {
     for (var j = 0; j < favorites.length; j++) {
       if(favorites[j].f_article == articles[i].a_id){
@@ -509,6 +528,7 @@ app.get("/sub/:name", async (req, res) => {
         favorites.splice(j, 1)
       }
     }
+    articles[i].a_date = new Date(articles[i].a_date).toLocaleDateString("fr-FR", date_option)
   }
 
   var sub = await db.get(`
@@ -518,7 +538,6 @@ app.get("/sub/:name", async (req, res) => {
     ORDER BY a_id DESC
   `,[req.params.name])
 
-  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
   sub.last = new Date(sub.last).toLocaleDateString("fr-FR", date_option)
 
   db.close()
@@ -541,6 +560,12 @@ app.get("/search_user/:u_pseudo", async (req, res) => {
     WHERE u_pseudo = ?
     `, [req.params.u_pseudo])
   const header="Recherche des posts publiés par '"+req.params.u_pseudo+"'"
+
+  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
+  for (var i = 0; i < articles.length; i++) {
+    articles[i].a_date = new Date(articles[i].a_date).toLocaleDateString("fr-FR", date_option)
+  }
+  db.close()
   res.render("result", {user, articles, header})
 })
 
@@ -924,6 +949,7 @@ app.post("/search", async (req, res) => {
 
   // exécute la requête
   const articles = await db.all(sql_request)
+  const date_option = {weekday: "long", year: "numeric", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"};
 
   const favorites = await db.all(`
     SELECT f_article
@@ -938,6 +964,7 @@ app.post("/search", async (req, res) => {
         favorites.splice(j, 1)
       }
     }
+    articles[i].a_date = new Date(articles[i].a_date).toLocaleDateString("fr-FR", date_option)
   }
 
   switch (search_choice) {
