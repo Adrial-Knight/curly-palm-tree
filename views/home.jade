@@ -91,21 +91,27 @@ block left
 block right
   img#menu-illustration(src="./footer_illustration.svg" alt="fin des catégories" width="800")
   div.container.mt-3.mb-5
-    h2.text-center="Nouveautés sur vos Sub-reddit d'intérêt"
-    div#sub.mb-5
-      each sub in subs
-        if (edit != null)
-          a.row(href="sub/"+sub.title+"?reset=edit")
-            if (sub.score == 1)
-              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " new)"
-            else
-              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " news)"
-        else
-          a.row(href="sub/"+sub.title)
-            if (sub.score == 1)
-              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " new)"
-            else
-              h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " news)"
+    if (subs.length == 0)
+      h2.text-center="Aucune nouveauté sur vos Sub-reddit d'intérêt"
+    else
+      if (subs.length == 1)
+        h2.text-center="Nouveauté"
+      else
+        h2.text-center="Nouveautés"
+      div#sub.mb-5
+        each sub in subs
+          if (edit != null)
+            a.row(href="sub/"+sub.title+"?reset=edit")
+              if (sub.score == 1)
+                h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " new)"
+              else
+                h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " news)"
+          else
+            a.row(href="sub/"+sub.title)
+              if (sub.score == 1)
+                h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " new)"
+              else
+                h3.col-auto.text-decoration-none.text-dark.mt-2=sub.title + " (" + sub.score + " news)"
   div#Navigation
     div.container
       h2.text-center="Navigation"
