@@ -1,0 +1,53 @@
+/*Titre*/
+
+h1.col-9{
+  border-radius: 25px;
+  background-color: #b4bed8;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+/*Lien, Nom de l'auteur et Date de publication*/
+
+div > nav > a{
+  background-color: #bbdb80;
+  border-radius: 15px;
+  color: black;
+  font-size: 20px;
+  text-decoration: none;
+  text-align: center;
+  padding: 7px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+}
+
+#right{
+  display: block;
+  position: fixed;
+  right: 2%;
+}
+
+#right > div > div{
+  background-color: #ae9473;
+  padding: 7px 14px 7px 14px;
+  margin: 7px;
+  border-radius: 10px;
+}
+
+#cancel, #delete, #publish, #edit{
+  border-radius: 25px;
+  font-size: 18px;
+}
+
+#publish{
+  color: #3c9851;
+}
+
+#publish:hover{
+  background-color: #3c9851;
+}
+
+/*Bouton pour ajouter un commentaire*/
+article > button#publish{
+  width: 100%;
+}

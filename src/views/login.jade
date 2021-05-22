@@ -1,0 +1,53 @@
+doctype html
+html(lang="fr")
+  head
+    html(lang="fr")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous")
+    link(rel="icon" href="./../favicon.png")
+    style
+      include CSS/general.css
+      include CSS/login.css
+    title= "Reddit'eirb"
+  body
+    div.container
+      h1.text-center.mt-5="Bienvenue sur Reddit'eirb !"
+        row.justify-content-center
+          h2.mb-3.mt-4=title
+          form(action=action,autocomplete="off",method="post")
+            div.row
+              div.col-4
+              if (action == "/login")
+                input.col-4.mb-3.input-group-text(type="text", maxlength="255", required="required",, placeholder="Pseudo",name="pseudo_input", value=pseudo)
+              else
+                input.col-4.mb-3.input-group-text(type="text", minlength="4", maxlength="255", required="required", placeholder="Pseudo",name="pseudo_input", value=pseudo)
+            div.row
+              div.col-4
+              if (action == "/login")
+                input.col-4.mb-3.input-group-text(type="password", maxlength="255", required="required", placeholder="Mot de passe",name="password_input", value=password)
+              else
+                input.col-4.mb-3.input-group-text(type="password", minlength="6", maxlength="255", required="required", placeholder="Mot de passe",name="password_input", value=password)
+            div.row
+              if (action == "/signup")
+                div.col-4
+                input.col-4.mb-3.input-group-text(type="email", maxlength="255", required="required", placeholder="email",name="email_input")
+            div.row
+            if (pseudo_error == 1)
+              h5.text-danger="Pseudo inconnu"
+            if (pseudo_error == 2)
+              h5.text-danger="Pseudo déjà utilisé"
+            if (password_error != 0)
+              h5.text-danger=password_error
+            div.row
+            button#Submit(type="submit")="Valider"
+          div.row.mt-5
+            div.col-4
+            if (action == "/login")
+              h5.col-2.mt-3="Pas de compte ?"
+              div.col-2
+                form(action="/signup",autocomplete="off",method="post")
+                  button#Inscription(type="submit")="Inscrivez-vous !"
+            else
+              h5.col-2.mt-3="Déjà inscrits ?"
+              div.col-2
+                form(action="/login",autocomplete="off",method="post")
+                  button#Connexion(type="submit")="Connexion !"

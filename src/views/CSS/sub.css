@@ -1,0 +1,13 @@
+#Navigation{
+  position: fixed;
+  float: right;
+  display: block;
+  margin-top: -32px;
+}
+
+ #anchor{
+   background-color: #ae9473;
+   padding-right: 125px;
+   padding-left: 15px;
+   border-radius: 10px;
+ }

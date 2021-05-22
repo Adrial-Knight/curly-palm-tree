@@ -1,0 +1,89 @@
+extend layout
+block link
+  include CSS/sub.css
+block top
+  h1.text-center.mt-5(id="top")=sub.title
+  h3.text-center.mb-5="Dernier post le "+sub.last
+block left
+  each article in articles
+    if ( (edit != null) && (edit.id == article.a_id) )
+        h2.text-center(id="editing")="Edition de votre post"
+    div.container.row.mb-5
+      if (article.v_vote != undefined)
+        if (article.v_vote == 1)
+          div#upped.col-1.align-self-center.text-center.my-text-align-justify
+            form(action="/sub/"+sub.title+"/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
+              button#cancel.mb-2="cancel"
+            h4=article.a_score
+            form(action="/sub/"+sub.title+"/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 2),method="post")
+              button#down="down"
+        if (article.v_vote == -1)
+          div#downed.col-1.align-self-center.text-center.my-text-align-justify
+            form(action="/sub/"+sub.title+"/vote/udapte/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 2),method="post")
+              button#up.mb-2="up"
+            h4=article.a_score
+            form(action="/sub/"+sub.title+"/vote/cancel/"+user.u_id+"/"+article.a_id+"/article/+1/"+(article.a_score + 1),method="post")
+              button#cancel="cancel"
+      else
+        div#nulled.col-1.align-self-center.text-center.my-text-align-justify
+          form(action="/sub/"+sub.title+"/vote/new/"+user.u_id+"/"+article.a_id+"/article/1/"+(article.a_score + 1),method="post")
+            button#up.mb-2="up"
+          h4=article.a_score
+          form(action="/sub/"+sub.title+"/vote/new/"+user.u_id+"/"+article.a_id+"/article/-1/"+(article.a_score - 1),method="post")
+            button#down="down"
+      div.col-10
+        div.row
+          if ( (edit != null) && (edit.id == article.a_id) )
+            form.row(action="/sub/"+sub.title+"/edite/article/"+article.a_id+"/saved",method="post")
+              div.col-10
+                input.col-12(type="text", minlength="1", maxlength="255", required="required", placeholder="Titre",name="new_title", value=edit.title)
+                div.row
+                input.col-6(type="text", minlength="1", maxlength="255", required="required", placeholder="Lien",name="link", value=edit.link)
+                input.col-6(type="text", minlength="1", maxlength="255", required="required", disabled="disabled", placeholder="Sub-reddit",name="sub", value=edit.sub)
+                div.row
+                textarea.col-12(type="text", rows="5", minlength="1", maxlength="40000", required="required", placeholder="Contenu",name="content")=edit.content
+              div.col-2
+                button#save.col-12.mb-4.mt-4="Sauvegarder"
+                div.row
+                form(action="foo")
+                form(action="/sub/"+sub.title+"/edite/article/"+article.a_id+"/cancel",method="post")
+                  button#cancel.col-12.mb-2="Annuler"
+                div.row
+                form(action="/sub/"+sub.title+"/edite/article/"+article.a_id+"/del",method="post")
+                  if (articles.length != 1)
+                    button#delete.col-12="Supprimer"
+          else
+            a.col-9.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+              h4=article.u_pseudo + ", le " +article.a_date
+              h3=article.a_title
+              if (article.a_reaction > 1)
+                h5=article.a_reaction + " commentaires"
+              else
+                h5=article.a_reaction + " commentaire"
+            div.col-2
+              if (article.a_user == user.u_id)
+                div.row.mt-2
+                  if (edit == null)
+                    form.col-6(action="/sub/"+sub.title+"/edite/article/"+article.a_id+"/processing",method="post")
+                      button#edit="Editer"
+                    form.col-6(action="/sub/"+sub.title+"/del/article/"+article.a_id,method="post")
+                      if (articles.length != 1)
+                        button#delete="Supprimer"
+              a(href="/sub/"+sub.title+"/favorite/"+article.a_id)
+                if (article.favorite == null)
+                  img.my-favorite(src="./../not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+                else
+                  img.my-favorite(src="./../favorite.png" alt="favoris" title="Retirer des favoris")
+  div(id="bottom")
+block right
+  div#Navigation
+    div.container
+      h2.text-center="Navigation"
+      div#anchor
+        a.row(href="#top")
+          h3.text-decoration-none.text-dark.mt-1="Haut de page"
+        if (edit != null)
+          a.row(href="#editing")
+            h3.text-decoration-none.text-dark.mt-1="Edition en cours"
+        a.row(href="#bottom")
+          h3.text-decoration-none.text-dark.mt-1="Bas de page"

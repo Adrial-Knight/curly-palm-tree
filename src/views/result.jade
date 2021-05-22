@@ -1,0 +1,38 @@
+extend layout
+block link
+  include CSS/result.css
+block top
+block left
+  h1.text-center.mt-5(id="top")=header
+  each article in articles
+    div.container.mt-5.row
+      a.col-8.text-decoration-none.text-dark(href="/article/"+article.a_id+"?reset=edit")
+        h4=article.u_pseudo + ", le " +article.a_date
+        h3=article.a_title
+        if (article.a_reaction > 1)
+          h5=article.a_reaction + " commentaires"
+        else
+          h5=article.a_reaction + " commentaire"
+      div.col-3.row.mt-2
+        if (article.a_user == user.u_id)
+          form.col-auto(action="/article/"+article.a_id+"/edite/article/"+article.a_id+"/processing",method="post")
+            button#edit="Editer"
+          form.col-auto(action="/home/0/del/article/"+article.a_id,method="post")
+            button#delete="Supprimer"
+      a.col-1(href="/article/"+article.a_id+"/favorite/"+article.a_id)
+        if (article.favorite == null)
+          img.my-favorite(src="./../not_favorite.png" alt="non favoris" title="Ajouter aux favoris")
+        else
+          img.my-favorite(src="./../favorite.png" alt="favoris" title="Retirer des favoris")
+  div(id="bottom")
+block right
+  div#Navigation
+    div.container
+      h2.text-center="Navigation"
+      div#anchor
+        a.row(href="#top")
+          h3.text-decoration-none.text-dark.mt-1="Haut de page"
+        a.row(href="#bottom")
+          h3.text-decoration-none.text-dark.mt-1="Bas de page"
+
+  
