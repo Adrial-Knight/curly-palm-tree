@@ -167,7 +167,7 @@ install.js : initialise les tables de la base de données
 src/main.db  : base de donnée (crée après le déploiement du site)
 src/sessions : session de l'utilisateur (lorsqu'il est connecté)
 
-src/db_structure.png : schéma de la base de donnée implémentée
+db_structure.png : schéma de la base de donnée implémentée
 
 
 
@@ -183,5 +183,5 @@ la table. Par exemple, la colonne id de USERS est u_id et la colonne
 id de ARTICLES est a_id.
 
 Cela permet d'éviter de faire des alias dans les requêtes SQL.
-Le fichier src/db_structure.png illustre les tables, leurs champs
+Le fichier db_structure.png illustre les tables, leurs champs
 ainsi que les liens existant entre ces derniers.
